@@ -1,15 +1,14 @@
+from os import getenv
+
 import time
 import board
 import digitalio
-from os import getenv
-
 import adafruit_connection_manager
 import wifi
-
+import microcontroller
+import builtins
+import json
 import adafruit_minimqtt.adafruit_minimqtt as MQTT
-
-led = digitalio.DigitalInOut(board.LED)
-led.direction = digitalio.Direction.OUTPUT
 
 #ssid = getenv("CIRCUITPY_WIFI_SSID")
 ssid = getenv("TEL_SSID")
@@ -21,71 +20,65 @@ mqtt_password = getenv("MQTT_PASSWORD")
 mqtt_ip = getenv("MQTT_IP")
 mqtt_port = int(getenv("MQTT_PORT"))
 
-basic_topic = getenv("MQTT_BASIC_TOPIC")
+uuid = microcontroller.cpu.uid.hex()
+print(f"UUID using the processor hex'd UID: {uuid}")
 
-print(f"Connecting to Wifi: {ssid}")
-wifi.radio.connect(ssid, password)
-print(f"Connected to Wifi!")
+basic_topic = getenv("MQTT_BASIC_TOPIC")+'/'+uuid #--> /device/<uuid>
+print(f"Basic topic of the device: {basic_topic}")
 
-publish_feed = basic_topic+"/raspberry_pico"
-subscribe_feed = basic_topic+"/onoff"
+subscribe_feed = basic_topic+getenv("MQTT_DEVICE_SETTINGS_TOPIC")
+tel_topic = basic_topic+getenv("MQTT_BASE_TELEMETRY") #--> /device/<uuid>/telemetry
+info_topic = basic_topic+getenv("MQTT_DEVICE_INFO_TOPIC")
 
-### Logica ###
+device_info ={'name':'SmartPot Proto1','id':uuid,'version':'0.0.01','type':'Raspberry Pi Pico 2W'}
+json_info = json.dumps(device_info, separators=(',',":"))
+### MQTT Client methods
 def connected(client, userdata, flags, rc):
-    print(f"Connected to the Broker as {mqtt_username} , subscribing and listening to feed {subscribe_feed}")
+    print("Connected to the Broker, sending device information...")
+    client.publish(info_topic, json_info, True, 2)
+    print("Subscribing and listening to the settings topic...")
     client.subscribe(subscribe_feed)
+    print("Done!")
     
 def disconnected(client, userdata, rc):
     print("Disconnected from the Broker")
     
 def message(client, topic, message):
     print(f"New message on topic {topic}: {message}")
-    if(str(message) == "accendi"):
-        led.value = True
-    elif(str(message) == "spegni"):
-        led.value = False
-    elif(str(message) == "asrubale"):
-        led.value = not led.value
-        time.sleep(0.5)
-        led.value = not led.value
-        time.sleep(0.5)
-        led.value = not led.value
-        
-    
+
+def apply_settings():
+    print("ooooh ho ricevuto qualcosa sul topic dei settings!")
+
+
+wifi.radio.connect(ssid, password)
+print("Connected to Wifi!")
+print("My IP addr:", wifi.radio.ipv4_address)
+   
 pool = adafruit_connection_manager.get_radio_socketpool(wifi.radio)
 ssl_context = adafruit_connection_manager.get_radio_ssl_context(wifi.radio)
 
-## Da scommentare se ho bisogno di una coppia certificato-chiave SSL
-# ssl_context.load_cert_chain(
-#     certfile=getenv("device_cert_path"), keyfile=getenv("device_key_path")
-# )
-
-
-## Setup MQTT Client
 mqtt_client = MQTT.MQTT(
     broker = mqtt_ip,
     port = mqtt_port,
     username = mqtt_username,
     password = mqtt_password,
     socket_pool = pool,
-    ssl_context = ssl_context,
+    ssl_context = ssl_context
 )
-
 
 mqtt_client.on_connect = connected
 mqtt_client.on_disconnect = disconnected
-mqtt_client.on_message = message
+mqtt_client.add_topic_callback(subscribe_feed, apply_settings)
 
-print("Connecting to the Broker...")
+print("Connecting to the broker...")
 mqtt_client.connect()
 
+if(mqtt_client.is_connected()):
+    print("Successfully connected to the broker!")
+else:
+    print("Connection Error: make sure the credentials are correct.")
 
-onoff_value = 0
+
 while True:
     mqtt_client.loop(timeout=1)
     
-    print(f"Sending a value to the topic {publish_feed}: {onoff_value}")
-    mqtt_client.publish(publish_feed, onoff_value)
-    print("Sent!")
-    onoff_value += 1
-    time.sleep(5)
