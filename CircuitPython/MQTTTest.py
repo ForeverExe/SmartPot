@@ -20,12 +20,12 @@ print(f"Connecting to Wifi: {ssid}")
 wifi.radio.connect(ssid, password)
 print(f"Connected to Wifi!")
 
-publish_feed = "raspberry_pico"
-subscribe_feed = "onoff"
+publish_feed = getenv("MQTT_BASIC_TOPIC")+"raspberry_pico"
+subscribe_feed = getenv("MQTT_BASIC_TOPIC")+"onoff"
 
 ### Logica ###
 def connected(client, userdata, flags, rc):
-    print("Connected to the Broker, subscribing and listening to feed {subscribe_feed}")
+    print(f"Connected to the Broker, subscribing and listening to feed {subscribe_feed}")
     client.subscribe(subscribe_feed)
     
 def disconnected(client, userdata, rc):
@@ -46,6 +46,7 @@ ssl_context = adafruit_connection_manager.get_radio_ssl_context(wifi.radio)
 ## Setup MQTT Client
 mqtt_client = MQTT.MQTT(
     broker = mqtt_ip,
+    port = int(mqtt_port),
     username = mqtt_username,
     password = mqtt_password,
     socket_pool = pool,
@@ -64,7 +65,7 @@ onoff_value = 0
 while True:
     mqtt_client.loop(timeout=1)
     
-    print(f"Sending a value to the topic {topic}: {onoff_value}")
+    print(f"Sending a value to the topic {publish_feed}: {onoff_value}")
     mqtt_client.publish(publish_feed, onoff_value)
     print("Sent!")
     onoff_value += 1

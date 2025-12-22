@@ -1,18 +1,22 @@
 from os import getenv
 
+import adafruit_logging
 import time
 import board
 import digitalio
 import adafruit_connection_manager
 import wifi
 import microcontroller
-import builtins
 import json
 import adafruit_minimqtt.adafruit_minimqtt as MQTT
 
-#ssid = getenv("CIRCUITPY_WIFI_SSID")
+from PotSettings import PotSettings
+from senML import senML
+
+############## VARIABLES AND ALMOST-CONSTANTS #############
+#ssid = getenv("WIFI_SSID")
 ssid = getenv("TEL_SSID")
-#password = getenv("CIRCUITPY_WIFI_PASSWORD")
+#password = getenv("WIFI_PASSWORD")
 password = getenv("TEL_PASSWD")
 
 mqtt_username = getenv("MQTT_USERNAME")
@@ -32,22 +36,37 @@ info_topic = basic_topic+getenv("MQTT_DEVICE_INFO_TOPIC")
 
 device_info ={'name':'SmartPot Proto1','id':uuid,'version':'0.0.01','type':'Raspberry Pi Pico 2W'}
 json_info = json.dumps(device_info, separators=(',',":"))
+
+settings = PotSettings()
+record = senML()
+
+############# LOGIC #############
+
 ### MQTT Client methods
 def connected(client, userdata, flags, rc):
-    print("Connected to the Broker, sending device information...")
-    client.publish(info_topic, json_info, True, 2)
-    print("Subscribing and listening to the settings topic...")
-    client.subscribe(subscribe_feed)
     print("Done!")
+    mqtt_client.publish(info_topic, json_info, True, 2)
     
 def disconnected(client, userdata, rc):
     print("Disconnected from the Broker")
     
 def message(client, topic, message):
-    print(f"New message on topic {topic}: {message}")
+    print(f"New message on topic {topic}: {json.loads(message)}")
 
-def apply_settings():
+def apply_settings_msg(client, topic, message):
     print("ooooh ho ricevuto qualcosa sul topic dei settings!")
+
+#### Pot Methods
+def update_and_send():
+    record.n = "test"
+    record.u = "unit"
+    record.v = 1.245
+    print(record)
+    
+#### MAIN
+
+print(settings)
+print(f"Topics:\nSettings: {subscribe_feed} - Telemetry: {tel_topic} - Device Info: {info_topic}")
 
 
 wifi.radio.connect(ssid, password)
@@ -62,23 +81,35 @@ mqtt_client = MQTT.MQTT(
     port = mqtt_port,
     username = mqtt_username,
     password = mqtt_password,
+    client_id=uuid,
     socket_pool = pool,
     ssl_context = ssl_context
 )
+logger = mqtt_client.enable_logger(adafruit_logging, adafruit_logging.DEBUG, "loggy")
 
 mqtt_client.on_connect = connected
 mqtt_client.on_disconnect = disconnected
-mqtt_client.add_topic_callback(subscribe_feed, apply_settings)
-
+mqtt_client.add_topic_callback(subscribe_feed, apply_settings_msg)
 print("Connecting to the broker...")
-mqtt_client.connect()
+mqtt_client.connect(True)
 
 if(mqtt_client.is_connected()):
-    print("Successfully connected to the broker!")
+    print("Connected to the Broker, sending device information...")
+    mqtt_client.publish(info_topic, json_info, True, 2)
 else:
     print("Connection Error: make sure the credentials are correct.")
-
+    
+print("Connection Established: subscribing and listening to the settings topic...")
+#mqtt_client.subscribe(subscribe_feed, 2)
 
 while True:
-    mqtt_client.loop(timeout=1)
-    
+    try:
+        mqtt_client.loop(5)
+        mqtt_client.publish(info_topic, json_info, True, 2)
+        #update_and_send()
+    except (ValueError, RuntimeError) as e:
+        print("Failed to get data, retrying\n", e)
+        wifi.reset()
+        mqtt_client.reconnect()
+        continue
+    time.sleep(1)
