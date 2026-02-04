@@ -1,5 +1,10 @@
 package it.foreverexe.smartpot.model;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.util.Scanner;
+
 public class SmartPotSettings {
     //Settings
     private float shTrigger;
@@ -8,7 +13,9 @@ public class SmartPotSettings {
     private float waterTimer;
     private float ahTrigger;
 
-    SmartPotSettings() {
+    private boolean setting = false;
+
+    public SmartPotSettings() {
         this.shTrigger = 50.0f;
         this.ahTrigger = 43.0f;
         this.refreshTimer = 3;
@@ -58,12 +65,48 @@ public class SmartPotSettings {
 
     @Override
     public String toString() {
-        return "SmartPotSettings{" +
-                "shTrigger=" + shTrigger +
-                ", tempTrigger=" + tempTrigger +
-                ", refreshTimer=" + refreshTimer +
-                ", waterTimer=" + waterTimer +
-                ", ahTrigger=" + ahTrigger +
-                '}';
+        return "SmartPotSettings\n" +
+                "Soil Humidity Trigger=" + shTrigger +
+                "%, Temperature Trigger=" + tempTrigger +
+                "C, Refresh Timer=" + refreshTimer +
+                "s, Water Timer=" + waterTimer +
+                "s, Air Humidity Trigger=" + ahTrigger +
+                "% \n";
+    }
+
+    public void setup(String name){
+        Scanner br = new Scanner(System.in);
+        System.out.println("Impostazione per " + name + ":");
+        System.out.println(this.toString());
+        System.out.println("Imposta i valori in ordine, lasciare vuoto lascia il valore di default:");
+        try {
+            this.shTrigger = br.nextFloat();
+        } catch (NumberFormatException e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            this.ahTrigger = br.nextFloat();
+        } catch (NumberFormatException e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            this.tempTrigger = br.nextFloat();
+        } catch (NumberFormatException e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            this.refreshTimer = br.nextInt();
+        } catch (NumberFormatException e) {
+            throw new RuntimeException(e);
+        }
+
+        try {
+            this.waterTimer = br.nextFloat();
+        } catch (NumberFormatException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

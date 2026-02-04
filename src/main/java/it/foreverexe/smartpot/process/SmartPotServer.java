@@ -1,5 +1,6 @@
 package it.foreverexe.smartpot.process;
 
+import it.foreverexe.smartpot.model.SmartPotSettings;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import it.foreverexe.smartpot.conf.MqttConfigurationParameters;
@@ -11,8 +12,8 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.HashMap;
+import java.util.Scanner;
 
 
 /**
@@ -27,9 +28,10 @@ public class SmartPotServer {
     static HashMap<String, SmartPotDescriptor> PotsList = new HashMap<>();
     static boolean running = true;
     static int choice;
+    static String deviceKey;
     public static void main(String[] args) {
         System.out.println("Starting SmartPot Service...");
-        BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+        Scanner br = new Scanner(System.in);
         try{
             MqttClientPersistence persistence = new MemoryPersistence();
 
@@ -71,16 +73,22 @@ public class SmartPotServer {
             while(running){
                 System.out.println("\nSeleziona una delle opzioni:");
                 System.out.println("0. Invia nuove impostazioni \n1. Leggi la lista dei device \n2. Esci");
-                try {
-                    choice = Integer.parseInt(br.readLine());
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
+                System.out.print("Seleziona una opzione: ");
+                choice = Integer.parseInt(br.nextLine());
 
                 switch (choice){
                     case 0:
-                        System.out.println("[WIP] Imposta le opzioni per il device scelto");
-                        break;
+                        System.out.println("Imposta le opzioni per il device scelto:");
+                        PotsList.forEach((k,v) -> {
+                            System.out.println(v.getName()+"\n");
+                        });
+                        System.out.print("Nome: ");
+                        deviceKey = br.nextLine();
+
+                        SmartPotSettings settings = new SmartPotSettings();
+                        settings.setup(PotsList.get(deviceKey).getName());
+                        PotsList.get(deviceKey).setSettings(settings);
+                        System.out.println("Impostazioni inserite.");
                     case 1:
                         for (var i : PotsList.entrySet()) {
                             System.out.println(i.getKey()+" / "+i.getValue());
