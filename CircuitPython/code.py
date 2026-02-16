@@ -38,7 +38,6 @@ device_info ={'name':'SmartPot Proto1','id':uuid,'version':'0.0.01','type':'Rasp
 json_info = json.dumps(device_info, separators=(',',":"))
 
 settings = PotSettings()
-record = senML()
 
 ############# LOGIC #############
 
@@ -60,16 +59,24 @@ def apply_settings_msg(client, topic, message):
 
 #### Pot Methods
 def update_and_send():
-    record.n = "test"
-    record.u = "unit"
-    record.v = 1.245
-    print(record)
+    try:
+        print("TempRecord")
+        record = senML()
+        record.n = "Temperature"
+        record.u = "deg"
+        record.v = 1.245
+        print(record)
+        sh_topic = tel_topic+getenv("MQTT_TEL_SH")
+        mqtt_client.publish(sh_topic, record.getJSON())
+    except (ValueError, RuntimeError) as e:
+        print("Error getting the data...\n", e)
+        
     
 #### MAIN
 
 print(settings)
 print(f"\nTopics:\nSettings: {subscribe_feed} - Telemetry: {tel_topic} - Device Info: {info_topic}")
-
+print(ssid, password)
 wifi.radio.connect(ssid, password)
 print("Connected to Wifi!")
 print("My IP addr:", wifi.radio.ipv4_address)
@@ -77,25 +84,25 @@ print("My IP addr:", wifi.radio.ipv4_address)
 pool = adafruit_connection_manager.get_radio_socketpool(wifi.radio)
 ssl_context = adafruit_connection_manager.get_radio_ssl_context(wifi.radio)
 
-#mqtt_client = MQTT.MQTT(
-#    broker = mqtt_ip,
-#    port = mqtt_port,
-#    username = mqtt_username,
-#    password = mqtt_password,
-#    client_id = 'test1', #"Pot"+uuid
-#    socket_pool = pool,
-#    ssl_context = ssl_context,
-#    use_binary_mode = False,
-#)
-
 mqtt_client = MQTT.MQTT(
     broker = mqtt_ip,
-    port = int(mqtt_port),
+    port = mqtt_port,
     username = mqtt_username,
     password = mqtt_password,
+    client_id = "Pot"+uuid,
     socket_pool = pool,
     ssl_context = ssl_context,
+    use_binary_mode = True,
 )
+
+#mqtt_client = MQTT.MQTT(
+#    broker = mqtt_ip,
+#    port = int(mqtt_port),
+#    username = mqtt_username,
+#    password = mqtt_password,
+#    socket_pool = pool,
+#    ssl_context = ssl_context,
+#)
 
 logger = mqtt_client.enable_logger(adafruit_logging, adafruit_logging.DEBUG, "loggy")
 
@@ -117,8 +124,8 @@ mqtt_client.subscribe(subscribe_feed, 2)
 
 while True:
     try:
-        mqtt_client.loop(5)
         update_and_send()
+        mqtt_client.loop(10)
     except (ValueError, RuntimeError) as e:
         print("Failed to get data, retrying\n", e)
         wifi.reset()

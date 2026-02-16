@@ -1,4 +1,4 @@
-package it.foreverexe.mqttclient.utils;
+package it.foreverexe.smartpot.utils;
 
 /**
  +---------------+------+---------+

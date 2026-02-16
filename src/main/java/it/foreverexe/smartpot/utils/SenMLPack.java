@@ -1,4 +1,4 @@
-package it.foreverexe.mqttclient.utils;
+package it.foreverexe.smartpot.utils;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 

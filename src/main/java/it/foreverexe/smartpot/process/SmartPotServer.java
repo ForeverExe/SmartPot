@@ -54,7 +54,9 @@ public class SmartPotServer {
 
             System.out.println("Discovery phase -  Topic:" +MqttConfigurationParameters.MQTT_BASIC_TOPIC+"/+"+MqttConfigurationParameters.MQTT_INFO_TOPIC);
             //Discovery Phase
-            mqttClient.subscribe(MqttConfigurationParameters.MQTT_BASIC_TOPIC+"/+"+MqttConfigurationParameters.MQTT_INFO_TOPIC, new IMqttMessageListener() {
+            System.out.println("Subscribing to Topic: /iot/user/324749@studenti.unimore.it/device/89169b02185f5278/info");
+            //MqttConfigurationParameters.MQTT_BASIC_TOPIC+"/+"+MqttConfigurationParameters.MQTT_INFO_TOPIC
+            mqttClient.subscribe("/iot/user/324749@studenti.unimore.it/device/89169b02185f5278/info", new IMqttMessageListener() {
                 //https://github.com/Intelligent-Internet-of-Things-Course/mqtt-playground/blob/master/src/main/java/it/unimore/dipi/iot/mqtt/playground/process/JsonConsumer.java
                 @Override
                 public void messageArrived(String topic, MqttMessage message) throws Exception {
@@ -105,6 +107,11 @@ public class SmartPotServer {
                         break;
                 }
              System.out.println("\n\n");
+            }
+
+            while(true){
+                Thread.sleep(4000);
+                System.out.println("Pause for 4 secs");
             }
         } catch (Exception e) {
             throw new RuntimeException(e);
