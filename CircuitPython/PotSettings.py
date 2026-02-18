@@ -1,16 +1,11 @@
-class PotSettings:
-    int refresh_time
-    float air_hum_trigger
-    float soil_hum_trigger
-    float temp_trigger
-    int water_timer
-    
+class PotSettings(object):
+
     def __init__(self, refresh=5, air=70.0, soil=30.0, temp=50.0, timer=15):
-        self.refresh_time = refresh
-        self.air_hum_trigger = air
-        self.soil_hum_trigger = soil
-        self.temp_trigger = temp
-        self.water_timer = timer
+        self.refresh_time:int = refresh
+        self.air_hum_trigger:float = air
+        self.soil_hum_trigger:float = soil
+        self.temp_trigger:float = temp
+        self.water_timer:int = timer
         
     def set_refresh(refresh:int):
         self.refresh = refresh
@@ -36,3 +31,6 @@ class PotSettings:
         self.water_timer = timer
     def get_water_timer():
         return self.water_timer
+    
+    def __str__(self):
+        return f"Triggers:\n    Air Humidity: {self.air_hum_trigger} - Soil Humidity: {self.soil_hum_trigger} - Temperature: {self.temp_trigger}\nTimers:\n    Telemetry Refresh: {self.refresh_time} - Water Timer: {self.water_timer}"
