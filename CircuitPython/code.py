@@ -65,9 +65,16 @@ def message(client, topic, message):
     print(f"New message on topic {topic}: {json.loads(message)}")
 
 def apply_settings_msg(client, topic, message):
-    print("ooooh ho ricevuto qualcosa sul topic dei settings!")
-    print(str(message))
-
+    print("Settings received, applying settings")
+    print(f"Old Settings:\n{settings}")
+    msg = json.loads(message)
+    print(msg)
+    settings.set_refresh(msg["refresh"])
+    settings.set_air_hum_trigger(msg["air_hum_trigger"])
+    settings.set_soil_hum_trigger(msg["soil_hum_trigger"])
+    settings.set_temp_trigger(msg["temp_trigger"])
+    settings.set_water_timer(msg["water_timer"])
+    print(f"New Settings:\n{settings}")
 #### Pot Methods
 def update_and_send():
     try:
@@ -118,7 +125,7 @@ mqtt_client = MQTT.MQTT(
     use_binary_mode = True,
 )
 
-logger = mqtt_client.enable_logger(adafruit_logging, adafruit_logging.WARNING, "loggy")
+logger = mqtt_client.enable_logger(adafruit_logging, adafruit_logging.DEBUG, "loggy")
 
 mqtt_client.on_connect = connected
 mqtt_client.on_disconnect = disconnected
@@ -126,9 +133,8 @@ mqtt_client.add_topic_callback(subscribe_feed, apply_settings_msg)
 try:
     print("Connecting to the broker...")
     mqtt_client.connect()
-        
     print("Connection Established: subscribing and listening to the settings topic...")
-    mqtt_client.subscribe(subscribe_feed, 2)
+    mqtt_client.subscribe(subscribe_feed, 1)
 except (ValueError, RuntimeError) as e:
     print("Failed to connect, retrying")
     wifi.reset()
@@ -138,9 +144,10 @@ except (ValueError, RuntimeError) as e:
 while True:
     try:
         update_and_send()
+        mqtt_client.loop()
     except (ValueError, RuntimeError) as e:
         print("Failed to get data, retrying\n", e)
         wifi.reset()
         mqtt_client.reconnect()
         continue
-    time.sleep(30)
+    time.sleep(settings.get_refresh())
