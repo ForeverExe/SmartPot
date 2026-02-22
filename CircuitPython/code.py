@@ -34,6 +34,7 @@ print(f"Basic topic of the device: {basic_topic}")
 subscribe_feed = basic_topic+getenv("MQTT_DEVICE_SETTINGS_TOPIC") #--> /device/<uuid>/settings
 tel_topic = basic_topic+getenv("MQTT_BASE_TELEMETRY") #--> /device/<uuid>/telemetry
 info_topic = basic_topic+getenv("MQTT_DEVICE_INFO_TOPIC") #--> /device/<uuid>/info
+will_topic = basic_topic+getenv("MQTT_WILL_TOPIC")
 print("Main Topics:")
 print(f"Settings: {subscribe_feed}\nTelemetry: {tel_topic}\nInformation: {info_topic}\n")
 
@@ -69,18 +70,18 @@ def apply_settings_msg(client, topic, message):
     print(f"Old Settings:\n{settings}")
     msg = json.loads(message)
     print(msg)
-    settings.set_refresh(msg["refresh"])
-    settings.set_air_hum_trigger(msg["air_hum_trigger"])
-    settings.set_soil_hum_trigger(msg["soil_hum_trigger"])
-    settings.set_temp_trigger(msg["temp_trigger"])
-    settings.set_water_timer(msg["water_timer"])
+    settings.set_refresh(msg['refresh'])
+    settings.set_air_hum_trigger(msg['air_hum_trigger'])
+    settings.set_soil_hum_trigger(msg['soil_hum_trigger'])
+    settings.set_temp_trigger(msg['temp_trigger'])
+    settings.set_water_timer(msg['water_timer'])
     print(f"New Settings:\n{settings}")
 #### Pot Methods
 def update_and_send():
     try:
         print("TempRecord")
         #1 pack, 4 record, tutte da pubblicare
-        tpack = SenmlPack("telemetry")
+        tpack = SenmlPack("")
         ah = SenmlRecord("air_hum", unit=SenmlUnits.SENML_UNIT_RELATIVE_HUMIDITY, value=random.uniform(10.0,40.0), time=time.time())
         sh = SenmlRecord("soil_hum", unit=SenmlUnits.SENML_UNIT_RELATIVE_HUMIDITY, value=random.uniform(20.0,50.0),time=time.time())
         temp = SenmlRecord("temperature", unit=SenmlUnits.SENML_UNIT_DEGREES_CELSIUS, value=random.randint(0,40), time=time.time())
@@ -130,6 +131,9 @@ logger = mqtt_client.enable_logger(adafruit_logging, adafruit_logging.DEBUG, "lo
 mqtt_client.on_connect = connected
 mqtt_client.on_disconnect = disconnected
 mqtt_client.add_topic_callback(subscribe_feed, apply_settings_msg)
+
+mqtt_client.will_set(will_topic, "Device Disconnected from Power Source", False, 1)
+
 try:
     print("Connecting to the broker...")
     mqtt_client.connect()
@@ -144,10 +148,10 @@ except (ValueError, RuntimeError) as e:
 while True:
     try:
         update_and_send()
-        mqtt_client.loop()
+        mqtt_client.loop(float(settings.get_refresh()))
     except (ValueError, RuntimeError) as e:
         print("Failed to get data, retrying\n", e)
         wifi.reset()
         mqtt_client.reconnect()
         continue
-    time.sleep(settings.get_refresh())
+    time.sleep(1)

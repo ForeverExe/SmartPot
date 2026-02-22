@@ -7,29 +7,29 @@ class PotSettings(object):
         self.temp_trigger:float = temp
         self.water_timer:int = timer
         
-    def set_refresh(refresh:int):
+    def set_refresh(self, refresh:int):
         self.refresh = refresh
-    def get_refresh():
+    def get_refresh(self):
         return self.refresh
     
-    def set_air_hum_trigger(air:float):
+    def set_air_hum_trigger(self, air:float):
         self.aur_hum_trigger = air
-    def get_air_hum_trigger():
+    def get_air_hum_trigger(self):
         return self.air_hum_trigger
     
-    def set_soil_hum_trigger(soil:float):
+    def set_soil_hum_trigger(self, soil:float):
         self.soil_hum_trigger = soil
-    def get_soil_hum_trigger():
+    def get_soil_hum_trigger(self):
         return self.soil_hum_trigger
     
-    def set_temp_trigger(temp:float):
+    def set_temp_trigger(self, temp:float):
         self.temp_trigger = temp
-    def get_temp_trigger():
+    def get_temp_trigger(self):
         return self.temp_trigger
     
-    def set_water_timer(timer:float):
+    def set_water_timer(self, timer:float):
         self.water_timer = timer
-    def get_water_timer():
+    def get_water_timer(self):
         return self.water_timer
     
     def __str__(self):
