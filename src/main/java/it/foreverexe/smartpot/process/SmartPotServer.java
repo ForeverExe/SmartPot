@@ -66,12 +66,14 @@ public class SmartPotServer {
                     PotsList.put(device.getName(), device);
                 }
             });
-
-            System.out.println(PotsList.size());
+            /*
             for (SmartPotDescriptor i : PotsList.values()) {
                 System.out.println(i);
             }
+            */
+            //System.out.println(PotsList.size());
 
+            Thread.sleep(2000);
             while(running){
                 System.out.println("\nSeleziona una delle opzioni:");
                 System.out.println("0. Invia nuove impostazioni \n1. Leggi la lista dei device \n2. Esci");
@@ -80,17 +82,27 @@ public class SmartPotServer {
 
                 switch (choice){
                     case 0:
-                        System.out.println("Imposta le opzioni per il device scelto:");
+                        System.out.println("Imposta le opzioni per il device scelto ('q' per annullare):");
                         PotsList.forEach((k,v) -> {
                             System.out.println(v.getName()+"\n");
                         });
                         System.out.print("Nome: ");
                         deviceKey = br.nextLine();
-
+                        if(deviceKey.equals("q")){
+                            break;
+                        }
                         SmartPotSettings settings = new SmartPotSettings();
                         settings.setup(PotsList.get(deviceKey).getName());
                         PotsList.get(deviceKey).setSettings(settings);
-                        System.out.println("Impostazioni inserite.");
+                        System.out.println("Impostazioni inserite:");
+                        System.out.println(PotsList.get(deviceKey).getSettings().toString());
+
+                        String topic = MqttConfigurationParameters.MQTT_BASIC_TOPIC+"/"+PotsList.get(deviceKey).getUuid()+"/"+MqttConfigurationParameters.MQTT_SETTINGS_TOPIC;
+                        MqttMessage msg = new MqttMessage(PotsList.get(deviceKey).getSettings().toJson().getBytes());
+                        msg.setQos(1);
+                        msg.setRetained(true);
+                        mqttClient.publish(topic, msg);
+                        break;
                     case 1:
                         for (var i : PotsList.entrySet()) {
                             System.out.println(i.getKey()+" / "+i.getValue());
@@ -106,7 +118,7 @@ public class SmartPotServer {
                         System.out.println("Opzione non valida.");
                         break;
                 }
-             System.out.println("\n\n");
+             System.out.println("\n");
             }
 
         } catch (Exception e) {

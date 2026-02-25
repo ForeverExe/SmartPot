@@ -4,8 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Scanner;
+import com.google.gson.Gson;
 
 public class SmartPotSettings {
+    private Gson gson = new Gson();
     //Settings
     private float shTrigger;
     private float tempTrigger;
@@ -80,33 +82,43 @@ public class SmartPotSettings {
         System.out.println(this.toString());
         System.out.println("Imposta i valori in ordine, lasciare vuoto lascia il valore di default:");
         try {
+            System.out.print("Soil Humidity Trigger: ");
             this.shTrigger = br.nextFloat();
         } catch (NumberFormatException e) {
             throw new RuntimeException(e);
         }
 
         try {
+            System.out.print("Air Humidity Trigger: ");
             this.ahTrigger = br.nextFloat();
         } catch (NumberFormatException e) {
             throw new RuntimeException(e);
         }
 
         try {
+            System.out.print("Temperature Trigger: ");
             this.tempTrigger = br.nextFloat();
         } catch (NumberFormatException e) {
             throw new RuntimeException(e);
         }
 
         try {
+            System.out.print("Data Refresh Trigger: ");
             this.refreshTimer = br.nextInt();
         } catch (NumberFormatException e) {
             throw new RuntimeException(e);
         }
 
         try {
+            System.out.print("Water Timer: ");
             this.waterTimer = br.nextFloat();
         } catch (NumberFormatException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    //Creates a JSON version of the settings to send to the Broker
+    public String toJson(){
+        return gson.toJson(this);
     }
 }
