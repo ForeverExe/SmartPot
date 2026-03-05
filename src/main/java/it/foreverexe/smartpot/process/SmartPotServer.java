@@ -14,6 +14,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Scanner;
+import java.util.UUID;
 
 
 /**
@@ -41,7 +42,7 @@ public class SmartPotServer {
 
             IMqttClient mqttClient = new MqttClient(
                     String.format("tcp://%s:%d", MqttConfigurationParameters.BROKER_ADDRESS, MqttConfigurationParameters.BROKER_PORT),
-                    "SmartPotService",
+                    "SmartPotService"+ UUID.randomUUID(),
                     persistence);
 
             MqttConnectOptions options = new MqttConnectOptions();
@@ -79,10 +80,10 @@ public class SmartPotServer {
                 }
             });
              */
-            mqttClient.subscribe(infoTopic, (topic, message) ->{
+            mqttClient.subscribe(infoTopic, 1, (topic, message) ->{
                 System.out.println("Messaggio ricevuto su "+topic.toString());
-                byte[] payload = message.getPayload();
-                SmartPotDescriptor device = gson.fromJson(new String(payload), SmartPotDescriptor.class);
+                System.out.print(message.getPayload().toString());
+                SmartPotDescriptor device = gson.fromJson(new String(message.getPayload()), SmartPotDescriptor.class);
                 System.out.println(device);
             });
             /*
@@ -135,6 +136,7 @@ public class SmartPotServer {
                         break;
                     case 3:
                         System.out.println("Spegnendo...");
+                        mqttClient.unsubscribe(infoTopic);
                         mqttClient.disconnect();
                         mqttClient.close();
                         running = false;
