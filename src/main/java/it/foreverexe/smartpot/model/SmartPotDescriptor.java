@@ -17,7 +17,10 @@ public class SmartPotDescriptor {
 
     //The constructor wants the base data of the device,
     //while the settings are standard and uploaded afterwards
-    public SmartPotDescriptor(String uuid, String type, String version, String name) {
+
+    public SmartPotDescriptor(){}
+
+    public SmartPotDescriptor(String uuid, String type, String name, String version) {
         this.uuid = uuid;
         this.type = type;
         this.version = version;

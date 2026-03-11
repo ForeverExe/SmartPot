@@ -12,8 +12,8 @@ import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.nio.charset.StandardCharsets;
+import java.util.*;
 
 
 /**
@@ -26,7 +26,8 @@ import java.util.Scanner;
 public class SmartPotServer {
     static Gson gson = new Gson();
     //static HashMap<String, SmartPotDescriptor> PotsList = new HashMap<>();
-    static java.util.Map<String, SmartPotDescriptor> PotsList = new java.util.LinkedHashMap<>();
+    //static java.util.Map<String, SmartPotDescriptor> PotsList = new java.util.LinkedHashMap<>();
+    static Map<String, SmartPotDescriptor> PotsList = Collections.synchronizedMap(new LinkedHashMap<>());
     static boolean running = true;
     static int choice;
     static String deviceKey;
@@ -49,7 +50,7 @@ public class SmartPotServer {
             options.setPassword(new String(MqttConfigurationParameters.MQTT_PASSWORD).toCharArray());
             options.setAutomaticReconnect(true);
             options.setCleanSession(true);
-            options.setConnectionTimeout(10);
+            options.setConnectionTimeout(1000);
 
             //Connect to the target broker
             mqttClient.connect(options);
@@ -58,33 +59,30 @@ public class SmartPotServer {
             //Discovery Phase
             System.out.println("Subscribing to Topic:"+ infoTopic);
             //MqttConfigurationParameters.MQTT_BASIC_TOPIC+"/+"+MqttConfigurationParameters.MQTT_INFO_TOPIC
-            /*mqttClient.subscribe(MqttConfigurationParameters.MQTT_BASIC_TOPIC+"/+"+MqttConfigurationParameters.MQTT_INFO_TOPIC, new IMqttMessageListener() {
+            mqttClient.subscribe(infoTopic, 1, new IMqttMessageListener() {
                 //https://github.com/Intelligent-Internet-of-Things-Course/mqtt-playground/blob/master/src/main/java/it/unimore/dipi/iot/mqtt/playground/process/JsonConsumer.java
                 @Override
                 public void messageArrived(String topic, MqttMessage message) throws Exception {
-                    System.out.println("Messaggio dal topic "+topic+" arrivato: ");
-                    SmartPotDescriptor device = gson.fromJson(new String(message.getPayload()), SmartPotDescriptor.class);
-                    System.out.println((device));
-                    PotsList.put(device.getName(), device);
+                    try{
+                        System.out.println("Messaggio dal topic "+topic+" arrivato: ");
+                        //System.out.println(message);
+                        String jsonPayload = new String(message.getPayload(), StandardCharsets.UTF_8);
+                        System.out.println(jsonPayload);
+                        SmartPotDescriptor device = gson.fromJson(jsonPayload, SmartPotDescriptor.class);
+                        System.out.println(device.toString());
+                        if (device.getName() != null) {
+                            PotsList.put(device.getName(), device);
+                        } else {
+                            System.err.println("Errore: Il nome del device è null.");
+                        }
+                    } catch (com.google.gson.JsonSyntaxException e) {
+                        System.err.println("Errore nel parsing del JSON: " + e.getMessage());
+                    } catch (Exception e) {
+                        System.err.println("Errore imprevisto durante la gestione del messaggio: " + e.getMessage());
+                    }
                 }
             });
 
-            mqttClient.subscribe(infoTopic, new IMqttMessageListener(){
-                @Override
-                public void messageArrived(String topic, MqttMessage message) throws Exception {
-                    System.out.println("Messaggio dal topic " + topic + " arrivato: ");
-                    SmartPotDescriptor device = gson.fromJson(new String(message.getPayload()), SmartPotDescriptor.class);
-                    System.out.println(message.getPayload());
-                    PotsList.put(device.getName(), device);
-                }
-            });
-             */
-            mqttClient.subscribe(infoTopic, (topic, message) ->{
-                System.out.println("Messaggio ricevuto su "+topic.toString());
-                byte[] payload = message.getPayload();
-                SmartPotDescriptor device = gson.fromJson(new String(payload), SmartPotDescriptor.class);
-                System.out.println(device);
-            });
             /*
             for (SmartPotDescriptor i : PotsList.values()) {
                 System.out.println(i);
@@ -92,8 +90,9 @@ public class SmartPotServer {
             */
             //System.out.println(PotsList.size());
 
-            Thread.sleep(2000);
+            Thread.sleep(1000);
             while(running){
+
                 System.out.println("\nSeleziona una delle opzioni:");
                 System.out.println("0. Invia nuove impostazioni al device \n1. Leggi telemetria del device \n2. Elenco dei device connessi \n3. Esci");
                 System.out.print("Seleziona una opzione: ");
