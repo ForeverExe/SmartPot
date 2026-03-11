@@ -16,9 +16,9 @@ from senml import *
 
 ############## VARIABLES AND ALMOST-CONSTANTS #############
 ssid = getenv("WIFI_SSID")
-#ssid = getenv("TEL_SSID")
+ssid = getenv("TEL_SSID")
 password = getenv("WIFI_PASSWORD")
-#password = getenv("TEL_PASSWD")
+password = getenv("TEL_PASSWD")
 
 mqtt_username = getenv("MQTT_USERNAME")
 mqtt_password = getenv("MQTT_PASSWORD")
