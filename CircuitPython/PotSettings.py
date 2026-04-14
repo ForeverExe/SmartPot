@@ -1,36 +1,36 @@
 class PotSettings(object):
 
     def __init__(self, refresh=5, air=70.0, soil=30.0, temp=50.0, timer=15):
-        self.refresh_time:int = refresh
-        self.air_hum_trigger:float = air
-        self.soil_hum_trigger:float = soil
-        self.temp_trigger:float = temp
-        self.water_timer:int = timer
+        self.refreshTimer:int = refresh
+        self.ahTrigger:float = air
+        self.shTrigger:float = soil
+        self.tempTrigger:float = temp
+        self.waterTimer:int = timer
         
     def set_refresh(self, refresh:int):
-        self.refresh = refresh
+        self.refreshTimer = refresh
     def get_refresh(self):
-        return self.refresh
+        return self.refreshTimer
     
     def set_air_hum_trigger(self, air:float):
-        self.aur_hum_trigger = air
+        self.ahTrigger = air
     def get_air_hum_trigger(self):
-        return self.air_hum_trigger
+        return self.ahTrigger
     
     def set_soil_hum_trigger(self, soil:float):
-        self.soil_hum_trigger = soil
+        self.shTrigger = soil
     def get_soil_hum_trigger(self):
-        return self.soil_hum_trigger
+        return self.shTrigger
     
     def set_temp_trigger(self, temp:float):
-        self.temp_trigger = temp
+        self.tempTrigger = temp
     def get_temp_trigger(self):
-        return self.temp_trigger
+        return self.tempTrigger
     
     def set_water_timer(self, timer:float):
-        self.water_timer = timer
+        self.waterTimer = timer
     def get_water_timer(self):
-        return self.water_timer
+        return self.waterTimer
     
     def __str__(self):
-        return f"Triggers:\n    Air Humidity: {self.air_hum_trigger} - Soil Humidity: {self.soil_hum_trigger} - Temperature: {self.temp_trigger}\nTimers:\n    Telemetry Refresh: {self.refresh_time} - Water Timer: {self.water_timer}"
+        return f"Triggers:\n    Air Humidity: {self.ahTrigger} - Soil Humidity: {self.shTrigger} - Temperature: {self.tempTrigger}\nTimers:\n    Telemetry Refresh: {self.refreshTime} - Water Timer: {self.waterTimer}"

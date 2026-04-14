@@ -67,9 +67,9 @@ public class SmartPotServer {
                         System.out.println("Messaggio dal topic "+topic+" arrivato: ");
                         //System.out.println(message);
                         String jsonPayload = new String(message.getPayload(), StandardCharsets.UTF_8);
-                        System.out.println(jsonPayload);
+                        //System.out.println(jsonPayload);
                         SmartPotDescriptor device = gson.fromJson(jsonPayload, SmartPotDescriptor.class);
-                        System.out.println(device.toString());
+                        //System.out.println(device.toString());
                         if (device.getName() != null) {
                             PotsList.put(device.getName(), device);
                         } else {
@@ -115,7 +115,7 @@ public class SmartPotServer {
                         settings.setup(PotsList.get(deviceKey).getName());
                         PotsList.get(deviceKey).setSettings(settings);
                         System.out.println("Impostazioni inserite:\n" + PotsList.get(deviceKey).getSettings());
-                        String topic = MqttConfigurationParameters.MQTT_BASIC_TOPIC+"/"+PotsList.get(deviceKey).getUuid()+"/"+MqttConfigurationParameters.MQTT_SETTINGS_TOPIC;
+                        String topic = MqttConfigurationParameters.MQTT_BASIC_TOPIC+"/"+PotsList.get(deviceKey).getUuid()+MqttConfigurationParameters.MQTT_SETTINGS_TOPIC;
                         MqttMessage msg = new MqttMessage(PotsList.get(deviceKey).getSettings().toJson().getBytes());
                         msg.setQos(1);
                         msg.setRetained(true);
@@ -127,7 +127,7 @@ public class SmartPotServer {
                         if (deviceKey == null) {
                             break;
                         }
-                        System.out.println(PotsList.get(deviceKey));
+                        System.out.println(PotsList.get(deviceKey).telemetry);
                         break;
                     case 2:
                         listDevices();

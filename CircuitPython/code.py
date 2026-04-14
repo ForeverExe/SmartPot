@@ -3,6 +3,7 @@ from os import getenv
 import adafruit_logging
 import time
 import board
+import displayio
 import digitalio
 import adafruit_connection_manager
 import wifi
@@ -10,15 +11,16 @@ import microcontroller
 import json
 import adafruit_minimqtt.adafruit_minimqtt as MQTT
 import random
+from adafruit_gc9a01a import GC9A01A
 
 from PotSettings import PotSettings
 from senml import *
 
 ############## VARIABLES AND ALMOST-CONSTANTS #############
 ssid = getenv("WIFI_SSID")
-ssid = getenv("TEL_SSID")
+#ssid = getenv("TEL_SSID")
 password = getenv("WIFI_PASSWORD")
-password = getenv("TEL_PASSWD")
+#password = getenv("TEL_PASSWD")
 
 mqtt_username = getenv("MQTT_USERNAME")
 mqtt_password = getenv("MQTT_PASSWORD")
@@ -45,7 +47,7 @@ water_topic = tel_topic+getenv("MQTT_TEL_WATER")
 print("Telemetry Topics:")
 print(f"- {sh_topic}\n- {ah_topic}\n- {temp_topic}\n- {water_topic}\n")
 
-device_info ={'name':'SmartPot Proto1','id':uuid,'version':'0.0.2','type':'Raspberry Pi Pico2W'}
+device_info ={'name':'SmartPot Proto1','uuid':uuid,'version':'0.0.2','type':'Raspberry Pi Pico2W'}
 json_info = json.dumps(device_info, separators=(',',":"))
 print(f"Info:\n{device_info}")
 settings = PotSettings()
@@ -69,12 +71,12 @@ def apply_settings_msg(client, topic, message):
     print("Settings received, applying settings")
     print(f"Old Settings:\n{settings}")
     msg = json.loads(message)
-    print(msg)
-    settings.set_refresh(msg['refresh'])
-    settings.set_air_hum_trigger(msg['air_hum_trigger'])
-    settings.set_soil_hum_trigger(msg['soil_hum_trigger'])
-    settings.set_temp_trigger(msg['temp_trigger'])
-    settings.set_water_timer(msg['water_timer'])
+    print(str(msg))
+    settings.set_refresh(msg['refreshTimer'])
+    settings.set_air_hum_trigger(msg['ahTrigger'])
+    settings.set_soil_hum_trigger(msg['shTrigger'])
+    settings.set_temp_trigger(msg['tempTrigger'])
+    settings.set_water_timer(msg['waterTimer'])
     print(f"New Settings:\n{settings}")
 #### Pot Methods
 def update_and_send():
