@@ -71,7 +71,7 @@ public class SmartPotServer {
                         SmartPotDescriptor device = gson.fromJson(jsonPayload, SmartPotDescriptor.class);
                         //System.out.println(device.toString());
                         if (device.getName() != null) {
-                            PotsList.put(device.getName(), device);
+                            PotsList.put(device.getUuid(), device);
                         } else {
                             System.err.println("Errore: Il nome del device è null.");
                         }
@@ -82,6 +82,17 @@ public class SmartPotServer {
                     }
                 }
             });
+
+            //Iscriviti a tutte le telemetrie dei dispositivi, poi si occupa di segnare nel dispositivo corretto i vari dati
+            mqttClient.subscribe(MqttConfigurationParameters.MQTT_BASIC_TOPIC + "/+" + MqttConfigurationParameters.MQTT_TELEMETRY_BASIC_TOPIC + "/#", new IMqttMessageListener() {
+                @Override
+                public void messageArrived(String topic, MqttMessage message) throws Exception {
+                    String[] topicData = topic.split("/");
+                    String uuid = topicData[5];
+                    String telData = topicData[7];
+                }
+            });
+
 
             /*
             for (SmartPotDescriptor i : PotsList.values()) {
