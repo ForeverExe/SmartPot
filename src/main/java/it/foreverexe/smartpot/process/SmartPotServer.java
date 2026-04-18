@@ -7,6 +7,8 @@ import it.foreverexe.smartpot.conf.MqttConfigurationParameters;
 import it.foreverexe.smartpot.model.SmartPotDescriptor;
 import it.foreverexe.smartpot.model.SmartPotSettings;
 import it.foreverexe.smartpot.model.SmartPotTelemetry;
+import it.foreverexe.smartpot.utils.SenMLPack;
+import it.foreverexe.smartpot.utils.SenMLRecord;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
@@ -33,7 +35,7 @@ public class SmartPotServer {
     static String deviceKey;
 
     static String infoTopic = MqttConfigurationParameters.MQTT_BASIC_TOPIC+"/+"+MqttConfigurationParameters.MQTT_INFO_TOPIC;
-
+    static String telTopic = MqttConfigurationParameters.MQTT_BASIC_TOPIC + "/+" + MqttConfigurationParameters.MQTT_TELEMETRY_BASIC_TOPIC;
     public static void main(String[] args) {
         System.out.println("Starting SmartPot Service...");
         Scanner br = new Scanner(System.in);
@@ -64,11 +66,17 @@ public class SmartPotServer {
                 @Override
                 public void messageArrived(String topic, MqttMessage message) throws Exception {
                     try{
-                        System.out.println("Messaggio dal topic "+topic+" arrivato: ");
+                        //System.out.println("Messaggio dal topic "+topic+" arrivato: ");
                         //System.out.println(message);
                         String jsonPayload = new String(message.getPayload(), StandardCharsets.UTF_8);
                         //System.out.println(jsonPayload);
                         SmartPotDescriptor device = gson.fromJson(jsonPayload, SmartPotDescriptor.class);
+                        if (device.getSettings() == null) {
+                            device.setSettings(new SmartPotSettings());
+                        }
+                        if (device.getTelemetry() == null) {
+                            device.setTelemetry(new SmartPotTelemetry());
+                        }
                         //System.out.println(device.toString());
                         if (device.getName() != null) {
                             PotsList.put(device.getUuid(), device);
@@ -83,13 +91,39 @@ public class SmartPotServer {
                 }
             });
 
+
             //Iscriviti a tutte le telemetrie dei dispositivi, poi si occupa di segnare nel dispositivo corretto i vari dati
-            mqttClient.subscribe(MqttConfigurationParameters.MQTT_BASIC_TOPIC + "/+" + MqttConfigurationParameters.MQTT_TELEMETRY_BASIC_TOPIC + "/#", new IMqttMessageListener() {
+            System.out.println("Subscribing to Topic:"+ telTopic);
+            mqttClient.subscribe(telTopic, new IMqttMessageListener() {
                 @Override
                 public void messageArrived(String topic, MqttMessage message) throws Exception {
                     String[] topicData = topic.split("/");
                     String uuid = topicData[5];
-                    String telData = topicData[7];
+                    String topicString = topicData[6];
+                    System.out.println(topicString);
+                    System.out.println(uuid);
+
+                    SmartPotTelemetry potTel = PotsList.get(uuid).getTelemetry();
+                    var payload = new String(message.getPayload());
+
+                    SenMLPack load = gson.fromJson(payload, SenMLPack.class);
+                    for (SenMLRecord record : load){
+                        System.out.println(record);
+                        switch (record.getN()){
+                            case "air_hum":
+                                potTel.setAirHumidity((Float) record.getV());
+                                break;
+                            case "soil_hum":
+                                potTel.setSoilHumidity((Float) record.getV());
+                                break;
+                            case "temperature":
+                                potTel.setTemperature((Float) record.getV());
+                                break;
+                            case "water":
+                                potTel.setWaterUsed((Float) record.getV());
+                        }
+                    }
+                    PotsList.get(uuid).setTelemetry(potTel);
                 }
             });
 
@@ -135,10 +169,11 @@ public class SmartPotServer {
                     case 1:
                         System.out.println("Seleziona il device di cui visualizzare i dettagli ('q' per annullare):");
                         deviceKey = selectDevice(br);
+                        System.out.println(deviceKey);
                         if (deviceKey == null) {
                             break;
                         }
-                        System.out.println(PotsList.get(deviceKey).telemetry);
+                        System.out.println(PotsList.get(deviceKey).getTelemetry());
                         break;
                     case 2:
                         listDevices();
@@ -170,8 +205,8 @@ public class SmartPotServer {
                 return;
             }
             int i = 0;
-            for (var name : PotsList.keySet()) {
-                System.out.printf("%d) %s\n", i++, name);
+            for (Map.Entry<String, SmartPotDescriptor> entry : PotsList.entrySet()) { //itera la mappa e stampa i nomi
+                System.out.printf("%d) %s - UUID: %s\n", i++, entry.getValue().getName(), entry.getValue().getUuid());
             }
         }
 
@@ -180,7 +215,7 @@ public class SmartPotServer {
          */
         private static String selectDevice(Scanner br) {
             listDevices();
-            System.out.print("Indice: ");
+            System.out.print("Seleziona: ");
             String sel = br.nextLine();
             if (sel.equalsIgnoreCase("q")) {
                 return null;
@@ -191,7 +226,9 @@ public class SmartPotServer {
                     System.out.println("Indice non valido.");
                     return null;
                 }
-                return new java.util.ArrayList<>(PotsList.keySet()).get(idx);
+                String uuid = new ArrayList<>(PotsList.keySet()).get(idx);
+                //System.out.println(uuid);
+                return uuid;
             } catch (NumberFormatException ex) {
                 System.out.println("Inserire un numero valido.");
                 return null;
