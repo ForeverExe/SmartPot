@@ -3,7 +3,6 @@ package it.foreverexe.smartpot.model;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Scanner;
 import com.google.gson.Gson;
 
 public class SmartPotSettings {
@@ -17,7 +16,7 @@ public class SmartPotSettings {
     public SmartPotSettings() {
         this.shTrigger = 50.0f;
         this.ahTrigger = 43.0f;
-        this.refreshTimer = 3;
+        this.refreshTimer = 3.0f;
         this.waterTimer = 2.0f;
         this.tempTrigger = 50.0f;
     }
@@ -73,50 +72,63 @@ public class SmartPotSettings {
                 "% \n";
     }
 
-    public void setup(String name){
-        Scanner br = new Scanner(System.in);
+    public void setup(String name, Scanner br){
         System.out.println("Impostazione per " + name + ":");
         System.out.println(this);
         System.out.println("Imposta i valori in ordine, lasciare vuoto lascia il valore precedente:");
+
+        String input="";
         try {
             System.out.print("Soil Humidity Trigger: ");
-            this.shTrigger = br.nextFloat();
-            br.nextLine();
+            input = br.nextLine().trim();
+            if(!input.isEmpty()){
+                this.shTrigger = Float.parseFloat(input);
+            }
         } catch (NumberFormatException e) {
             throw new RuntimeException(e);
         }
 
         try {
             System.out.print("Air Humidity Trigger: ");
-            this.ahTrigger = br.nextFloat();
-            br.nextLine();
+            input = br.nextLine().trim();
+            if(!input.isEmpty()){
+                this.ahTrigger = Float.parseFloat(input);
+            }
         } catch (NumberFormatException e) {
             throw new RuntimeException(e);
         }
 
         try {
             System.out.print("Temperature Trigger: ");
-            this.tempTrigger = br.nextFloat();
-            br.nextLine();
+            input = br.nextLine().trim();
+            if(!input.isEmpty()){
+                this.tempTrigger = Float.parseFloat(input);
+            }
         } catch (NumberFormatException e) {
             throw new RuntimeException(e);
         }
 
         try {
             System.out.print("Data Refresh Trigger: ");
-            this.refreshTimer = br.nextInt();
-            br.nextLine();
+            input = br.nextLine().trim();
+            if(!input.isEmpty()){
+                this.refreshTimer = Float.parseFloat(input);
+            }
         } catch (NumberFormatException e) {
             throw new RuntimeException(e);
         }
 
         try {
             System.out.print("Water Timer: ");
-            this.waterTimer = br.nextFloat();
-            br.nextLine();
+            input = br.nextLine().trim();
+            if(!input.isEmpty()){
+                this.waterTimer = Float.parseFloat(input);
+            }
         } catch (NumberFormatException e) {
             throw new RuntimeException(e);
         }
+
+        br.close();
     }
 
     //Creates a JSON version of the settings to send to the Broker

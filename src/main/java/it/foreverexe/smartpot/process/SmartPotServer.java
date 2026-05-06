@@ -147,7 +147,6 @@ public class SmartPotServer {
                 } catch (NumberFormatException nfe) {
                     choice = -1;
                 }
-
                 switch (choice){
                     case 0:
                         // set new settings on a selected device
@@ -157,7 +156,7 @@ public class SmartPotServer {
                             break;
                         }
                         SmartPotSettings settings = new SmartPotSettings();
-                        settings.setup(PotsList.get(deviceKey).getName());
+                        settings.setup(PotsList.get(deviceKey).getName(), br);
                         PotsList.get(deviceKey).setSettings(settings);
                         System.out.println("Impostazioni inserite:\n" + PotsList.get(deviceKey).getSettings());
                         String topic = MqttConfigurationParameters.MQTT_BASIC_TOPIC+"/"+PotsList.get(deviceKey).getUuid()+MqttConfigurationParameters.MQTT_SETTINGS_TOPIC;
