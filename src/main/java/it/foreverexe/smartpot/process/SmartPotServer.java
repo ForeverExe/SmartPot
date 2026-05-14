@@ -99,8 +99,8 @@ public class SmartPotServer {
                 public void messageArrived(String topic, MqttMessage message) throws Exception {
                     String[] topicData = topic.split("/");
                     String uuid = topicData[5];
-                    String topicString = topicData[6];
-                    System.out.println(topicString);
+                    //String topicString = topicData[6];
+                    System.out.println(topic);
                     System.out.println(uuid);
 
                     SmartPotTelemetry potTel = PotsList.get(uuid).getTelemetry();
