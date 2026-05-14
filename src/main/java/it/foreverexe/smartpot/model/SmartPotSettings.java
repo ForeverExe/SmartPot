@@ -72,7 +72,7 @@ public class SmartPotSettings {
                 "% \n";
     }
 
-    public void setup(String name, Scanner br){
+    public void setup(String name, java.util.Scanner br){
         System.out.println("Impostazione per " + name + ":");
         System.out.println(this);
         System.out.println("Imposta i valori in ordine, lasciare vuoto lascia il valore precedente:");
@@ -127,8 +127,6 @@ public class SmartPotSettings {
         } catch (NumberFormatException e) {
             throw new RuntimeException(e);
         }
-
-        br.close();
     }
 
     //Creates a JSON version of the settings to send to the Broker

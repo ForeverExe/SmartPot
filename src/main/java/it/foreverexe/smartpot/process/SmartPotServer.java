@@ -181,6 +181,7 @@ public class SmartPotServer {
                         System.out.println("Spegnendo...");
                         mqttClient.disconnect();
                         mqttClient.close();
+                        br.close();
                         running = false;
                         break;
                     default:
