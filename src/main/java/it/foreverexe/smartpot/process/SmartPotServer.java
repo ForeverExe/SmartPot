@@ -99,31 +99,38 @@ public class SmartPotServer {
                 public void messageArrived(String topic, MqttMessage message) throws Exception {
                     String[] topicData = topic.split("/");
                     String uuid = topicData[5];
-                    //String topicString = topicData[6];
-                    System.out.println(topic);
-                    System.out.println(uuid);
-
+                    //System.out.println(topic);
+                    //System.out.println(uuid);
                     SmartPotTelemetry potTel = PotsList.get(uuid).getTelemetry();
                     var payload = new String(message.getPayload());
 
                     SenMLPack load = gson.fromJson(payload, SenMLPack.class);
                     for (SenMLRecord record : load){
-                        System.out.println(record);
+                        //System.out.println(record);
                         switch (record.getN()){
                             case "air_hum":
-                                potTel.setAirHumidity((Float) record.getV());
+                                potTel.setAirHumidity((Float) record.getV().floatValue());
+                                //System.out.println("AirHum Impostato");
                                 break;
                             case "soil_hum":
-                                potTel.setSoilHumidity((Float) record.getV());
+                                potTel.setSoilHumidity((Float) record.getV().floatValue());
+                                //System.out.println("SoilHum Impostato");
                                 break;
                             case "temperature":
-                                potTel.setTemperature((Float) record.getV());
+                                potTel.setTemperature((Float) record.getV().floatValue());
+                                //System.out.println("Temperature Impostata");
                                 break;
                             case "water":
-                                potTel.setWaterUsed((Float) record.getV());
+                                potTel.setWaterUsed((Float) record.getV().floatValue());
+                                //System.out.println("WaterUsed Impostato");
+                                break;
+                            default:
+                                System.out.println("uuid "+ uuid + " non trovato per " + record.getN());
+                                break;
                         }
                     }
                     PotsList.get(uuid).setTelemetry(potTel);
+                    //System.out.println(PotsList.get(uuid).getTelemetry());
                 }
             });
 
