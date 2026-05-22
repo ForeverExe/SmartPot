@@ -3,6 +3,7 @@ import digitalio
 from board import *
 import board
 import microcontroller
+import adafruit_dht
 
 soilhum:analogio.AnalogIn
 airhum:analogio.AnalogIn
@@ -30,8 +31,15 @@ def init_soilhum(gpio:microcontroller.Pin):
     soilhum = analogio.AnalogIn(gpio)
     
 def init_airhum(gpio:microcontroller.Pin):
-    airhum = analogio.AnalogIn(gpio)
+    airhum = adafruit_dht.DHT11(gpio)
     
 def init_waterled(gpio:microcontroller.Pin):
     ledhose = digitalio.DigitalInOut(gpio)
     ledhose.direction = digitalio.Direction.OUTPUT
+
+
+def read_soil_hum():
+    return temp = (soilhum.value * 222.2) - 61.111 #necessita dei 5v
+
+def read_air_hum():
+    
