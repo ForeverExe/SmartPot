@@ -13,6 +13,7 @@ import adafruit_minimqtt.adafruit_minimqtt as MQTT
 import random
 from adafruit_gc9a01a import GC9A01A
 
+import sensors
 from PotSettings import PotSettings
 from senml import *
 
@@ -84,6 +85,10 @@ def update_and_send():
         print("TempRecord")
         #1 pack, 4 record, tutte da pubblicare
         tpack = SenmlPack("")
+        #ah = SenmlRecord("air_hum", unit=SenmlUnits.SENML_UNIT_RELATIVE_HUMIDITY, value=random.uniform(10.0,40.0), time=time.time())
+        #sh = SenmlRecord("soil_hum", unit=SenmlUnits.SENML_UNIT_RELATIVE_HUMIDITY, value=random.uniform(20.0,50.0),time=time.time())
+        #temp = SenmlRecord("temperature", unit=SenmlUnits.SENML_UNIT_DEGREES_CELSIUS, value=random.randint(0,40), time=time.time())
+        #watime = SenmlRecord("water", unit=SenmlUnits.SENML_UNIT_LITER_PER_SECOND, value=random.random(), time=time.time())
         ah = SenmlRecord("air_hum", unit=SenmlUnits.SENML_UNIT_RELATIVE_HUMIDITY, value=random.uniform(10.0,40.0), time=time.time())
         sh = SenmlRecord("soil_hum", unit=SenmlUnits.SENML_UNIT_RELATIVE_HUMIDITY, value=random.uniform(20.0,50.0),time=time.time())
         temp = SenmlRecord("temperature", unit=SenmlUnits.SENML_UNIT_DEGREES_CELSIUS, value=random.randint(0,40), time=time.time())
