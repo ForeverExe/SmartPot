@@ -13,9 +13,9 @@ import adafruit_minimqtt.adafruit_minimqtt as MQTT
 import random
 from adafruit_gc9a01a import GC9A01A
 
-import sensors
 from PotSettings import PotSettings
 from senml import *
+from Sensors import Sensors
 
 ############## VARIABLES AND ALMOST-CONSTANTS #############
 ssid = getenv("WIFI_SSID")
@@ -54,7 +54,14 @@ print(f"Info:\n{device_info}")
 settings = PotSettings()
 print(f"Settings:\n{settings}")
 
+DHT_PIN = board.GP14
+LED_PIN = board.LED #board.GP13
+SOIL_PIN = board.GP28_A2
+#LED_PIN = board.GP5
+
 ############# LOGIC #############
+
+sens= sensors(DHT_PIN, SOIL_PIN, LED_PIN)
 
 ### MQTT Client methods
 def connected(client, userdata, flags, rc):
@@ -79,6 +86,7 @@ def apply_settings_msg(client, topic, message):
     settings.set_temp_trigger(msg['tempTrigger'])
     settings.set_water_timer(msg['waterTimer'])
     print(f"New Settings:\n{settings}")
+    
 #### Pot Methods
 def update_and_send():
     try:
@@ -89,9 +97,9 @@ def update_and_send():
         #sh = SenmlRecord("soil_hum", unit=SenmlUnits.SENML_UNIT_RELATIVE_HUMIDITY, value=random.uniform(20.0,50.0),time=time.time())
         #temp = SenmlRecord("temperature", unit=SenmlUnits.SENML_UNIT_DEGREES_CELSIUS, value=random.randint(0,40), time=time.time())
         #watime = SenmlRecord("water", unit=SenmlUnits.SENML_UNIT_LITER_PER_SECOND, value=random.random(), time=time.time())
-        ah = SenmlRecord("air_hum", unit=SenmlUnits.SENML_UNIT_RELATIVE_HUMIDITY, value=random.uniform(10.0,40.0), time=time.time())
-        sh = SenmlRecord("soil_hum", unit=SenmlUnits.SENML_UNIT_RELATIVE_HUMIDITY, value=random.uniform(20.0,50.0),time=time.time())
-        temp = SenmlRecord("temperature", unit=SenmlUnits.SENML_UNIT_DEGREES_CELSIUS, value=random.randint(0,40), time=time.time())
+        ah = SenmlRecord("air_hum", unit=SenmlUnits.SENML_UNIT_RELATIVE_HUMIDITY, value=sensors.get_air_hum(), time=time.time())
+        sh = SenmlRecord("soil_hum", unit=SenmlUnits.SENML_UNIT_RELATIVE_HUMIDITY, value=sensors.get_soil_hum(),time=time.time())
+        temp = SenmlRecord("temperature", unit=SenmlUnits.SENML_UNIT_DEGREES_CELSIUS, value=sensors.get_temp(), time=time.time())
         watime = SenmlRecord("water", unit=SenmlUnits.SENML_UNIT_LITER_PER_SECOND, value=random.random(), time=time.time())
         tpack.add(ah)
         tpack.add(sh)
@@ -105,7 +113,7 @@ def update_and_send():
         print(jstruct[2])
         print(jstruct[3])
         
-        mqtt_client.publish(tel_topic, jsonOut, False, 0)
+        mqtt_client.publish(tel_topic, jsonOut, True, 0)
         mqtt_client.publish(ah_topic, json.dumps(jstruct[0]), False, 0)
         mqtt_client.publish(sh_topic, json.dumps(jstruct[1]), False, 0)
         mqtt_client.publish(temp_topic, json.dumps(jstruct[2]), False, 0)
