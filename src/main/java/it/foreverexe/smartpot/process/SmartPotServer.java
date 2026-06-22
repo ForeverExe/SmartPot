@@ -119,11 +119,8 @@ public class SmartPotServer {
                             case "temperature":
                                 potTel.setTemperature((Float) record.getV().floatValue());
                                 //System.out.println("Temperature Impostata");
-                                break;
-                            case "water":
-                                potTel.setWaterUsed((Float) record.getV().floatValue());
-                                //System.out.println("WaterUsed Impostato");
-                                break;
+                                break;2
+                                
                             default:
                                 System.out.println("uuid "+ uuid + " non trovato per " + record.getN());
                                 break;
