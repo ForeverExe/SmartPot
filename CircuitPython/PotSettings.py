@@ -33,4 +33,4 @@ class PotSettings(object):
         return self.waterTimer
     
     def __str__(self):
-        return f"Triggers:\n    Air Humidity: {self.ahTrigger} - Soil Humidity: {self.shTrigger} - Temperature: {self.tempTrigger}\nTimers:\n    Telemetry Refresh: {self.refreshTime} - Water Timer: {self.waterTimer}"
+        return f"Triggers:\n    Air Humidity: {self.ahTrigger} - Soil Humidity: {self.shTrigger} - Temperature: {self.tempTrigger}\nTimers:\n    Telemetry Refresh: {self.refreshTimer} - Water Timer: {self.waterTimer}"
