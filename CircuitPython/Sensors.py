@@ -42,8 +42,10 @@ class Sensors(object):
     def get_soil_hum():
         return hum_percent(soil_device, 20)
 
-    def activate_led()
-        return self.led.value = True
-
+    def activate_led():
+        self.led.value = True
+        return self.led.value
+    
     def deactivate_led():
-        return self.led.value = False
+        self.led.value = False
+        return self.led.value
