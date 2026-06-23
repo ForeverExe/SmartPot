@@ -100,7 +100,7 @@ public class SmartPotServer {
                     String[] topicData = topic.split("/");
                     String uuid = topicData[5];
                     //System.out.println(topic);
-                    //System.out.println(uuid);
+                    //System.out.println(uuid);s
                     SmartPotTelemetry potTel = PotsList.get(uuid).getTelemetry();
                     var payload = new String(message.getPayload());
 
