@@ -9,7 +9,6 @@ public class SmartPotTelemetry {
     private float airHumidity;
     private float soilHumidity;
     private float temperature;
-    private float waterUsed;
 
     public SmartPotTelemetry() {
         this.airHumidity = 0;
@@ -42,13 +41,6 @@ public class SmartPotTelemetry {
         this.temperature = temperature;
     }
 
-    public float getWaterUsed() {
-        return waterUsed;
-    }
-
-    public void setWaterUsed(float waterUsed) {
-        this.waterUsed = waterUsed;
-    }
 
     @Override
     public String toString() {
@@ -56,7 +48,6 @@ public class SmartPotTelemetry {
                 " airHumidity=" + airHumidity +
                 ", soilHumidity=" + soilHumidity +
                 ", temperature=" + temperature +
-                ", waterUsed=" + waterUsed +
                 '}';
     }
 }

@@ -3,19 +3,15 @@ from os import getenv
 import adafruit_logging
 import time
 import board
-import displayio
-import digitalio
 import adafruit_connection_manager
 import wifi
 import microcontroller
 import json
 import adafruit_minimqtt.adafruit_minimqtt as MQTT
-import random
-from adafruit_gc9a01a import GC9A01A
 
-import sensors
 from PotSettings import PotSettings
-from senml import *
+from lib.senml import *
+from Sensors import Sensors
 
 ############## VARIABLES AND ALMOST-CONSTANTS #############
 ssid = getenv("WIFI_SSID")
@@ -44,9 +40,8 @@ print(f"Settings: {subscribe_feed}\nTelemetry: {tel_topic}\nInformation: {info_t
 sh_topic = tel_topic+getenv("MQTT_TEL_SH")
 ah_topic = tel_topic+getenv("MQTT_TEL_AH")
 temp_topic = tel_topic+getenv("MQTT_TEL_TEMP")
-water_topic = tel_topic+getenv("MQTT_TEL_WATER")
 print("Telemetry Topics:")
-print(f"- {sh_topic}\n- {ah_topic}\n- {temp_topic}\n- {water_topic}\n")
+print(f"- {sh_topic}\n- {ah_topic}\n- {temp_topic}\n")
 
 device_info ={'name':'SmartPot Proto1','uuid':uuid,'version':'0.0.2','type':'Raspberry Pi Pico2W'}
 json_info = json.dumps(device_info, separators=(',',":"))
@@ -54,7 +49,14 @@ print(f"Info:\n{device_info}")
 settings = PotSettings()
 print(f"Settings:\n{settings}")
 
+DHT_PIN = board.GP14
+LED_PIN = board.LED #board.GP13
+SOIL_PIN = board.GP28_A2
+#LED_PIN = board.GP5
+
 ############# LOGIC #############
+
+sens= Sensors(DHT_PIN, SOIL_PIN, LED_PIN)
 
 ### MQTT Client methods
 def connected(client, userdata, flags, rc):
@@ -79,24 +81,22 @@ def apply_settings_msg(client, topic, message):
     settings.set_temp_trigger(msg['tempTrigger'])
     settings.set_water_timer(msg['waterTimer'])
     print(f"New Settings:\n{settings}")
+    
 #### Pot Methods
 def update_and_send():
     try:
         print("TempRecord")
         #1 pack, 4 record, tutte da pubblicare
         tpack = SenmlPack("")
-        #ah = SenmlRecord("air_hum", unit=SenmlUnits.SENML_UNIT_RELATIVE_HUMIDITY, value=random.uniform(10.0,40.0), time=time.time())
-        #sh = SenmlRecord("soil_hum", unit=SenmlUnits.SENML_UNIT_RELATIVE_HUMIDITY, value=random.uniform(20.0,50.0),time=time.time())
-        #temp = SenmlRecord("temperature", unit=SenmlUnits.SENML_UNIT_DEGREES_CELSIUS, value=random.randint(0,40), time=time.time())
-        #watime = SenmlRecord("water", unit=SenmlUnits.SENML_UNIT_LITER_PER_SECOND, value=random.random(), time=time.time())
         ah = SenmlRecord("air_hum", unit=SenmlUnits.SENML_UNIT_RELATIVE_HUMIDITY, value=random.uniform(10.0,40.0), time=time.time())
         sh = SenmlRecord("soil_hum", unit=SenmlUnits.SENML_UNIT_RELATIVE_HUMIDITY, value=random.uniform(20.0,50.0),time=time.time())
         temp = SenmlRecord("temperature", unit=SenmlUnits.SENML_UNIT_DEGREES_CELSIUS, value=random.randint(0,40), time=time.time())
-        watime = SenmlRecord("water", unit=SenmlUnits.SENML_UNIT_LITER_PER_SECOND, value=random.random(), time=time.time())
+        #ah = SenmlRecord(name="air_hum", unit=SenmlUnits.SENML_UNIT_RELATIVE_HUMIDITY, value=float(sens.get_air_hum()), time=time.time())
+        #sh = SenmlRecord(name="soil_hum", unit=SenmlUnits.SENML_UNIT_RELATIVE_HUMIDITY, value=float(sens.get_soil_hum()),time=time.time())
+        #temp = SenmlRecord(name="temperature", unit=SenmlUnits.SENML_UNIT_DEGREES_CELSIUS, value=int(sens.get_temp()), time=time.time())
         tpack.add(ah)
         tpack.add(sh)
         tpack.add(temp)
-        tpack.add(watime)
         jsonOut = tpack.to_json()
         
         jstruct = json.loads(jsonOut)
@@ -105,11 +105,10 @@ def update_and_send():
         print(jstruct[2])
         print(jstruct[3])
         
-        mqtt_client.publish(tel_topic, jsonOut, False, 0)
+        mqtt_client.publish(tel_topic, jsonOut, True, 0)
         mqtt_client.publish(ah_topic, json.dumps(jstruct[0]), False, 0)
         mqtt_client.publish(sh_topic, json.dumps(jstruct[1]), False, 0)
         mqtt_client.publish(temp_topic, json.dumps(jstruct[2]), False, 0)
-        mqtt_client.publish(water_topic, json.dumps(jstruct[3]), False, 0)
     except (ValueError, RuntimeError) as e:
         print("Error publishing the data...\n", e)
         
@@ -133,13 +132,13 @@ mqtt_client = MQTT.MQTT(
     use_binary_mode = True,
 )
 
-logger = mqtt_client.enable_logger(adafruit_logging, adafruit_logging.DEBUG, "loggy")
+logger = mqtt_client.enable_logger(adafruit_logging, adafruit_logging.INFO, "loggy")
 
 mqtt_client.on_connect = connected
 mqtt_client.on_disconnect = disconnected
 mqtt_client.add_topic_callback(subscribe_feed, apply_settings_msg)
 
-mqtt_client.will_set(will_topic, "Device Disconnected from Power Source", False, 1)
+mqtt_client.will_set(will_topic, "Device Disconnected", False, 1)
 
 try:
     print("Connecting to the broker...")
@@ -156,6 +155,10 @@ while True:
     try:
         update_and_send()
         mqtt_client.loop(float(settings.get_refresh()))
+        if(sens.get_soil_hum() < settings.get_soil_hum()):
+            sens.activate_led()
+            time.sleep(settings.get_water_timer())
+            sens.deactivate_led()
     except (ValueError, RuntimeError) as e:
         print("Failed to get data, retrying\n", e)
         wifi.reset()
