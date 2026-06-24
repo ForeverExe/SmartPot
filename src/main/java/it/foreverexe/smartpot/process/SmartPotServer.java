@@ -2,18 +2,14 @@ package it.foreverexe.smartpot.process;
 
 import it.foreverexe.smartpot.model.SmartPotSettings;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
 import it.foreverexe.smartpot.conf.MqttConfigurationParameters;
 import it.foreverexe.smartpot.model.SmartPotDescriptor;
-import it.foreverexe.smartpot.model.SmartPotSettings;
 import it.foreverexe.smartpot.model.SmartPotTelemetry;
 import it.foreverexe.smartpot.utils.SenMLPack;
 import it.foreverexe.smartpot.utils.SenMLRecord;
 import org.eclipse.paho.client.mqttv3.*;
 import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
-import java.io.BufferedReader;
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -26,9 +22,6 @@ import java.util.*;
  */
 public class SmartPotServer {
     static Gson gson = new Gson();
-    // static HashMap<String, SmartPotDescriptor> PotsList = new HashMap<>();
-    // static java.util.Map<String, SmartPotDescriptor> PotsList = new
-    // java.util.LinkedHashMap<>();
     static Map<String, SmartPotDescriptor> PotsList = Collections.synchronizedMap(new LinkedHashMap<>());
     static boolean running = true;
     static int choice;
@@ -72,10 +65,7 @@ public class SmartPotServer {
                 @Override
                 public void messageArrived(String topic, MqttMessage message) throws Exception {
                     try {
-                        // System.out.println("Messaggio dal topic "+topic+" arrivato: ");
-                        // System.out.println(message);
                         String jsonPayload = new String(message.getPayload(), StandardCharsets.UTF_8);
-                        // System.out.println(jsonPayload);
                         SmartPotDescriptor device = gson.fromJson(jsonPayload, SmartPotDescriptor.class);
                         if (device.getSettings() == null) {
                             device.setSettings(new SmartPotSettings());
@@ -83,7 +73,6 @@ public class SmartPotServer {
                         if (device.getTelemetry() == null) {
                             device.setTelemetry(new SmartPotTelemetry());
                         }
-                        // System.out.println(device.toString());
                         if (device.getName() != null) {
                             PotsList.put(device.getUuid(), device);
                         } else {
@@ -103,11 +92,7 @@ public class SmartPotServer {
                 public void messageArrived(String topic, MqttMessage message) throws Exception {
                     String[] topicData = topic.split("/");
                     String uuid = topicData[5];
-                    //System.out.println(topic);
-                    //System.out.println(uuid);
-                    //System.out.println(message);
                     String jsonPayload = new String(message.getPayload(), StandardCharsets.UTF_8);
-                    //System.out.println(jsonPayload);
                     SmartPotSettings potSet = gson.fromJson(jsonPayload, SmartPotSettings.class);
                     System.out.println("PotSet: " + potSet);
                     PotsList.get(uuid).setSettings(potSet);
@@ -126,14 +111,11 @@ public class SmartPotServer {
                 public void messageArrived(String topic, MqttMessage message) throws Exception {
                     String[] topicData = topic.split("/");
                     String uuid = topicData[5];
-                    // System.out.println(topic);
-                    // System.out.println(uuid);s
                     SmartPotTelemetry potTel = PotsList.get(uuid).getTelemetry();
                     var payload = new String(message.getPayload());
 
                     SenMLPack load = gson.fromJson(payload, SenMLPack.class);
                     for (SenMLRecord record : load) {
-                        // System.out.println(record);
                         switch (record.getN()) {
                             case "air_hum":
                                 potTel.setAirHumidity((Float) record.getV().floatValue());
