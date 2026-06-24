@@ -84,7 +84,9 @@ device's uuid. Also contains the settings and telemetry objects, so everything i
 - **SmartPotTelemetry**: POJO used to store the device's telemetry, it gets updated frequently, based on the device's "refreshTimer" option.
 
 - **SmartPotServer**: The name of the app which uses the aformentioned objects, it connects to the broker, creates the devices' list, prepares and responds to user interaction thanks to the TUI.
+  
 
+- **DeviceSim** is a partial device simulator that only sends information data
 ---
 
 # The MQTT Structure
