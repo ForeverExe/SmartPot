@@ -26,7 +26,7 @@ and update their settings.
 - 1x 1k Ohm Resistor
 - 1x Printed SmartPot (Tolerances not accounted for)
 
-The print can be done in any printer with a bed greater or equa 256^3 cm, just make sure you print it with some wear/weather resistant materiale like PET or ASA.  
+The print can be done in any printer with a bed greater or equal 256^3 cm, just make sure you print it with some wear/weather resistant materiale like PET or ASA.  
 The model has been made using FreeCAD and then sliced in OrcaSlicer.
 
 ---
