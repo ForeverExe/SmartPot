@@ -18,7 +18,8 @@ public class SmartPotDescriptor {
     //The constructor wants the base data of the device,
     //while the settings are standard and uploaded afterwards
 
-    public SmartPotDescriptor(){}
+    public SmartPotDescriptor() {
+    }
 
     public SmartPotDescriptor(String uuid, String type, String name, String version) {
         this.uuid = uuid;
@@ -30,15 +31,21 @@ public class SmartPotDescriptor {
         this.telemetry = new SmartPotTelemetry();
     }
 
-    public void setSettings(SmartPotSettings settings){
+    public void setSettings(SmartPotSettings settings) {
         this.settings = settings;
     }
-    public SmartPotSettings getSettings(){
+
+    public SmartPotSettings getSettings() {
         return this.settings;
     }
 
-    public void setTelemetry(SmartPotTelemetry telemetry) {this.telemetry = telemetry;}
-    public SmartPotTelemetry getTelemetry() {return this.telemetry;}
+    public void setTelemetry(SmartPotTelemetry telemetry) {
+        this.telemetry = telemetry;
+    }
+
+    public SmartPotTelemetry getTelemetry() {
+        return this.telemetry;
+    }
 
     public String getUuid() {
         return uuid;

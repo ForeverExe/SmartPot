@@ -3,6 +3,7 @@ package it.foreverexe.smartpot.model;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+
 import com.google.gson.Gson;
 
 public class SmartPotSettings {
@@ -72,16 +73,16 @@ public class SmartPotSettings {
                 "% \n";
     }
 
-    public void setup(String name, java.util.Scanner br){
+    public void setup(String name, java.util.Scanner br) {
         System.out.println("Impostazione per " + name + ":");
         System.out.println(this);
         System.out.println("Imposta i valori in ordine, lasciare vuoto lascia il valore precedente:");
 
-        String input="";
+        String input = "";
         try {
             System.out.print("Soil Humidity Trigger: ");
             input = br.nextLine().trim();
-            if(!input.isEmpty()){
+            if (!input.isEmpty()) {
                 this.shTrigger = Float.parseFloat(input);
             }
         } catch (NumberFormatException e) {
@@ -91,7 +92,7 @@ public class SmartPotSettings {
         try {
             System.out.print("Air Humidity Trigger: ");
             input = br.nextLine().trim();
-            if(!input.isEmpty()){
+            if (!input.isEmpty()) {
                 this.ahTrigger = Float.parseFloat(input);
             }
         } catch (NumberFormatException e) {
@@ -101,7 +102,7 @@ public class SmartPotSettings {
         try {
             System.out.print("Temperature Trigger: ");
             input = br.nextLine().trim();
-            if(!input.isEmpty()){
+            if (!input.isEmpty()) {
                 this.tempTrigger = Float.parseFloat(input);
             }
         } catch (NumberFormatException e) {
@@ -111,7 +112,7 @@ public class SmartPotSettings {
         try {
             System.out.print("Data Refresh Trigger: ");
             input = br.nextLine().trim();
-            if(!input.isEmpty()){
+            if (!input.isEmpty()) {
                 this.refreshTimer = Float.parseFloat(input);
             }
         } catch (NumberFormatException e) {
@@ -121,7 +122,7 @@ public class SmartPotSettings {
         try {
             System.out.print("Water Timer: ");
             input = br.nextLine().trim();
-            if(!input.isEmpty()){
+            if (!input.isEmpty()) {
                 this.waterTimer = Float.parseFloat(input);
             }
         } catch (NumberFormatException e) {
@@ -130,7 +131,7 @@ public class SmartPotSettings {
     }
 
     //Creates a JSON version of the settings to send to the Broker
-    public String toJson(){
+    public String toJson() {
         return new Gson().toJson(this);
     }
 }
