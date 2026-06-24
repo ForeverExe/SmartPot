@@ -14,7 +14,6 @@ public class SmartPotTelemetry {
         this.airHumidity = 0;
         this.soilHumidity = 0;
         this.temperature = 0;
-        this.waterUsed = 0;
     }
 
     public float getAirHumidity() {
