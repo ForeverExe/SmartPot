@@ -1,7 +1,7 @@
 # Smart Pot: it's not really a pot, but it's smart
 
-**Inserire immagine 800x800**
-
+<img height="400" src="Assets/20260626_184745.jpg" width="300"/>
+<img height="400" src="Assets/20260626_184757.jpg" width="300"/>
 # Summary
 
 The Smart Pot is a project done for @piconem's Intelligent Internet of Things class at Universiá di Modena e
