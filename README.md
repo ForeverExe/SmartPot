@@ -18,15 +18,15 @@ and update their settings.
 # Bill of Materials
 
 - 1x Raspberry Pi Pico 2W (or any other kind of pico, as long it can be connected to a network)
-- 1x Capacitive Soil Humidity Sensor (1.2 in this case)
+- 1x Capacitive Soil Humidity Sensor (v1.2 in this case)
 - 1x DHT11 Air Humidity and Temperature sensor
 - Cables as needed
-- 1x perfboard (around 5x7cm)
+- 1x Perfboard (around 5x7cm)
 - 1x Green LED (substitutes)
 - 1x 1k Ohm Resistor
 - 1x Printed SmartPot (Tolerances not accounted for)
 
-The print can be done in any printer with a bed greater or equal 256^3 cm, just make sure you print it with some wear/weather resistant materiale like PET or ASA.  
+The print can be done in any printer with a bed greater or equal 256^3 cm, just make sure you print it with some wear/weather resistant material like PETG or ASA/ABS.  
 The model has been made using FreeCAD and then sliced in OrcaSlicer.
 
 ---
@@ -57,6 +57,8 @@ The CircuitPython logic runs on three files:
 - **Sensors.py**: A class which contains all the logic regarding both sensors and actuators initialization while also giving helper functions to read from the sensors.
 - **Settings.py**: A class which represents the device's triggers and timers. Has getter and setters for each one of them to be used when receiving new settings from the Java app or when publishing them to the broker.
 
+If debugging or more details are needed, the device prints in Thonny's stdout.
+
 The Device reads and prepares a Json+SenMLPack containing every telemetry available and publishes it to the `t` topic.
 It also prepares and publishes via Json+SenMLRecord the single telemetry values so they could be obtained singularily (not used in the app for simplicity.)
 
@@ -64,7 +66,7 @@ It also prepares and publishes via Json+SenMLRecord the single telemetry values 
 
 ### The Java Application
 
-The Java application, other than the standard library, only uses Google's Gson and Eclipse's Paho MQTT.
+The Java application, other than the standard library, only uses Google's `Gson` and Eclipse's `Paho MQTT`.
 It can read and create SenML records and packs, but it uses a makeshift version. Since it follows the standard, it can communicate seamlessly with Adafruit's SenML.
 
 A TUI menu enables the user to easily navigate the options given:
@@ -73,8 +75,7 @@ A TUI menu enables the user to easily navigate the options given:
 - Read and change the settings of the selected device
 - Read the selected device's telemetry
 
-When starting, it subscribes to both the devices' info and telemetry topic, first it creates a device list with the
-discovered ones and then updates their telemetry variables.
+At startup, it subscribes to the device's Settings, Info and Telemetry topics to start adding the device to the internal list and synchronize their information and settings. After that it will start updating their telemetry values and unsubscribe to the Settings topic in order to publish on it later.
 
 ##### Java structure
 
@@ -122,8 +123,8 @@ root
 
 # Known Issues
 
-- Messages used for discovery (device info) and settings should be sent with a QOS 2 for major certainty of correct message delivery, but *QOS 2 is not yet implemented in adafruit's publish and subscribe methods*.
-- The model has some tolerance issues in the area dedicated to slot the electronics. The areas are needed to be increased in size in order to fit.
+- Messages used for discovery (device info) and settings should be sent with a QOS 2 for major certainty of correct message delivery, but *QOS 2 is not yet implemented in adafruit's publish method*.
+- The model has some tolerance issues in the area dedicated to slot the electronics. The areas are needed to be increased in size or lightly milled in order to fit.
 
 # Gallery
 
