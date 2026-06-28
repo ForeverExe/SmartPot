@@ -2,7 +2,21 @@
 
 <img height="400" src="Assets/20260626_184745.jpg" width="300"/>
 <img height="400" src="Assets/20260626_184757.jpg" width="300"/>
+<br>
+
 # Summary
+<!-- TOC -->
+* [Smart Pot: it's not really a pot, but it's smart](#smart-pot-its-not-really-a-pot-but-its-smart)
+* [Summary](#summary)
+* [Bill of Materials](#bill-of-materials)
+* [Structure](#structure)
+    * [The CircuitPython device](#the-circuitpython-device)
+    * [The Java Application](#the-java-application)
+        * [Java structure](#java-structure)
+* [The MQTT Structure](#the-mqtt-structure)
+* [Known Issues](#known-issues)
+* [Gallery](#gallery)
+<!-- TOC -->
 
 The Smart Pot is a project done for @piconem's Intelligent Internet of Things class at Universiá di Modena e
 Reggio Emilia (UniMoRe) - Sede di Mantova.  
@@ -128,9 +142,7 @@ root
 
 # Gallery
 
-<video width="800" height="600" controls>
-  <source src="Assets/demo.mp4" type="video/mp4">
-</video>
-<br>
+[![Demo Video](https://img.youtube.com/vi/0ZKRhLkEHeQ/maxresdefault.jpg)](https://youtu.be/0ZKRhLkEHeQ)
+
 <img  src="Assets/LedImage.png" width="400"/>  
 
