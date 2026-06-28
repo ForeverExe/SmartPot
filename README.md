@@ -128,5 +128,9 @@ root
 
 # Gallery
 
-***TODO: Inserire video di dimostrazione***
+<video width="800" height="600" controls>
+  <source src="Assets/demo.mp4" type="video/mp4">
+</video>
+<br>
+<img  src="Assets/LedImage.png" width="400"/>  
 
