@@ -142,7 +142,7 @@ root
 
 # Gallery
 
-[![Demo Video](https://img.youtube.com/vi/0ZKRhLkEHeQ/maxresdefault.jpg)](https://youtu.be/0ZKRhLkEHeQ)
+[![Demo Video](https://img.youtube.com/vi/0ZKRhLkEHeQ/hqdefault.jpg)](https://youtu.be/0ZKRhLkEHeQ)
 
 <img  src="Assets/LedImage.png" width="400"/>  
 
