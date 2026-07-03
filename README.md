@@ -6,8 +6,6 @@
 
 # Summary
 <!-- TOC -->
-* [Smart Pot: it's not really a pot, but it's smart](#smart-pot-its-not-really-a-pot-but-its-smart)
-* [Summary](#summary)
 * [Bill of Materials](#bill-of-materials)
 * [Structure](#structure)
     * [The CircuitPython device](#the-circuitpython-device)
