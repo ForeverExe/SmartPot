@@ -6,8 +6,6 @@
 
 # Summary
 <!-- TOC -->
-* [Smart Pot: it's not really a pot, but it's smart](#smart-pot-its-not-really-a-pot-but-its-smart)
-* [Summary](#summary)
 * [Bill of Materials](#bill-of-materials)
 * [Structure](#structure)
     * [The CircuitPython device](#the-circuitpython-device)
@@ -142,7 +140,7 @@ root
 
 # Gallery
 
-[![Demo Video](https://img.youtube.com/vi/0ZKRhLkEHeQ/maxresdefault.jpg)](https://youtu.be/0ZKRhLkEHeQ)
+[![Demo Video](https://img.youtube.com/vi/0ZKRhLkEHeQ/hqdefault.jpg)](https://youtu.be/0ZKRhLkEHeQ)
 
 <img  src="Assets/LedImage.png" width="400"/>  
 
