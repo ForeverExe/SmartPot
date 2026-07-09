@@ -41,10 +41,11 @@ public class SmartPotServer {
             MqttClientPersistence persistence = new MemoryPersistence();
 
             IMqttClient mqttClient = new MqttClient(
-                    String.format("tcp://%s:%d", MqttConfigurationParameters.BROKER_ADDRESS,
-                            MqttConfigurationParameters.BROKER_PORT),
-                    "SmartPotService",
-                    persistence);
+                String.format("tcp://%s:%d", MqttConfigurationParameters.BROKER_ADDRESS,
+                MqttConfigurationParameters.BROKER_PORT),
+        "SmartPotService",
+                persistence
+            );
 
             MqttConnectOptions options = new MqttConnectOptions();
             options.setUserName(MqttConfigurationParameters.MQTT_USERNAME);
@@ -59,9 +60,8 @@ public class SmartPotServer {
 
             // Discovery Phase
             System.out.println("Subscribing to Topic:" + infoTopic);
-            // MqttConfigurationParameters.MQTT_BASIC_TOPIC+"/+"+MqttConfigurationParameters.MQTT_INFO_TOPIC
             mqttClient.subscribe(infoTopic, 1, new IMqttMessageListener() {
-                // https://github.com/Intelligent-Internet-of-Things-Course/mqtt-playground/blob/master/src/main/java/it/unimore/dipi/iot/mqtt/playground/process/JsonConsumer.java
+            // https://github.com/Intelligent-Internet-of-Things-Course/mqtt-playground/blob/master/src/main/java/it/unimore/dipi/iot/mqtt/playground/process/JsonConsumer.java
                 @Override
                 public void messageArrived(String topic, MqttMessage message) throws Exception {
                     try {
@@ -116,17 +116,21 @@ public class SmartPotServer {
 
                     SenMLPack load = gson.fromJson(payload, SenMLPack.class);
                     for (SenMLRecord record : load) {
+                        //System.out.println(record);
                         switch (record.getN()) {
                             case "air_hum":
-                                potTel.setAirHumidity((Float) record.getV().floatValue());
+                                potTel.setAirHumidity(record.getV().floatValue());
+                                potTel.setTime(record.getT().longValue());
                                 // System.out.println("AirHum Impostato");
                                 break;
                             case "soil_hum":
-                                potTel.setSoilHumidity((Float) record.getV().floatValue());
+                                potTel.setSoilHumidity(record.getV().floatValue());
+                                potTel.setTime(record.getT().longValue());
                                 // System.out.println("SoilHum Impostato");
                                 break;
                             case "temperature":
-                                potTel.setTemperature((Float) record.getV().floatValue());
+                                potTel.setTemperature(record.getV().floatValue());
+                                potTel.setTime(record.getT().longValue());
                                 // System.out.println("Temperature Impostata");
                                 break;
 
@@ -186,7 +190,7 @@ public class SmartPotServer {
                         if (deviceKey == null) {
                             break;
                         }
-                        System.out.println(PotsList.get(deviceKey).getTelemetry());
+                        System.out.print(PotsList.get(deviceKey).getTelemetry());
                         break;
                     case 2:
                         listDevices();
