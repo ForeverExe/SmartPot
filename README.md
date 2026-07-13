@@ -16,7 +16,7 @@
 * [Gallery](#gallery)
 <!-- TOC -->
 
-The Smart Pot is a project done for @piconem's Intelligent Internet of Things class at Universiá di Modena e
+The Smart Pot is a project done for @piconem's Intelligent Internet of Things class at Universitá di Modena e
 Reggio Emilia (UniMoRe) - Sede di Mantova.  
 The device is a support for any plant that wants to be monitored, you just need to place the vase
 inside it and to position both the sensors and actuators.
