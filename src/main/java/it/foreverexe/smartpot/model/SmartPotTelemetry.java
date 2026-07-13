@@ -16,7 +16,7 @@ public class SmartPotTelemetry {
     private float temperature;
     private transient LocalDateTime time;
     private transient DateTimeFormatter dateFormat = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
-    private transient static final ZoneId zone = ZoneId.of("UTC+2"); 
+    private static final ZoneId zone = ZoneId.of("UTC");
 
     public SmartPotTelemetry() {
         this.airHumidity = 0;

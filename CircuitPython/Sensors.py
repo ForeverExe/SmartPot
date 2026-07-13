@@ -15,7 +15,7 @@ class Sensors(object):
         self.led.direction = Direction.OUTPUT
         self.led.value = False
 
-    def hum_percent(pin, campioni):
+    def hum_percent(self, pin, campioni):
         somma = 0
         for _ in range(campioni):
             somma = somma + pin.value
@@ -25,7 +25,7 @@ class Sensors(object):
         
         #print(f"Debug: Voltaggio {(somma*3.33)/65535}")
         
-        perc = ((DRY_VALUE - somma) / (DRY_VALUE - WET_VALUE)) * 100
+        perc = ((self.DRY_VALUE - somma) / (self.DRY_VALUE - self.WET_VALUE)) * 100
         if perc < 0:
             return 0
         elif perc > 100:
@@ -33,19 +33,19 @@ class Sensors(object):
         
         return round(perc,1)
 
-    def get_air_hum():
+    def get_air_hum(self):
         return self.dht.humidity
 
-    def get_temp():
+    def get_temp(self):
         return self.dht.temperature
 
-    def get_soil_hum():
-        return hum_percent(soil_device, 20)
+    def get_soil_hum(self):
+        return self.hum_percent(self.soil_device, 20)
 
-    def activate_led():
+    def activate_led(self):
         self.led.value = True
         return self.led.value
     
-    def deactivate_led():
+    def deactivate_led(self):
         self.led.value = False
         return self.led.value

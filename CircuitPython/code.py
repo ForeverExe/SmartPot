@@ -10,14 +10,10 @@ import json
 import adafruit_minimqtt.adafruit_minimqtt as MQTT
 
 from PotSettings import PotSettings
-from lib.senml import *
+from senml import *
 from Sensors import Sensors
 
 ############## VARIABLES AND ALMOST-CONSTANTS #############
-ssid = getenv("WIFI_SSID")
-#ssid = getenv("TEL_SSID")
-password = getenv("WIFI_PASSWORD")
-#password = getenv("TEL_PASSWD")
 
 mqtt_username = getenv("MQTT_USERNAME")
 mqtt_password = getenv("MQTT_PASSWORD")
@@ -50,7 +46,7 @@ settings = PotSettings()
 print(f"Settings:\n{settings}")
 
 DHT_PIN = board.GP14
-LED_PIN = board.LED #board.GP13
+LED_PIN = board.GP13
 SOIL_PIN = board.GP28_A2
 #LED_PIN = board.GP5
 
@@ -88,12 +84,12 @@ def update_and_send():
         print("TempRecord")
         #1 pack, 4 record, tutte da pubblicare
         tpack = SenmlPack("")
-        ah = SenmlRecord("air_hum", unit=SenmlUnits.SENML_UNIT_RELATIVE_HUMIDITY, value=random.uniform(10.0,40.0), time=time.time())
-        sh = SenmlRecord("soil_hum", unit=SenmlUnits.SENML_UNIT_RELATIVE_HUMIDITY, value=random.uniform(20.0,50.0),time=time.time())
-        temp = SenmlRecord("temperature", unit=SenmlUnits.SENML_UNIT_DEGREES_CELSIUS, value=random.randint(0,40), time=time.time())
-        #ah = SenmlRecord(name="air_hum", unit=SenmlUnits.SENML_UNIT_RELATIVE_HUMIDITY, value=float(sens.get_air_hum()), time=time.time())
-        #sh = SenmlRecord(name="soil_hum", unit=SenmlUnits.SENML_UNIT_RELATIVE_HUMIDITY, value=float(sens.get_soil_hum()),time=time.time())
-        #temp = SenmlRecord(name="temperature", unit=SenmlUnits.SENML_UNIT_DEGREES_CELSIUS, value=int(sens.get_temp()), time=time.time())
+        #ah = SenmlRecord("air_hum", unit=SenmlUnits.SENML_UNIT_RELATIVE_HUMIDITY, value=random.uniform(10.0,40.0), time=time.time())
+        #sh = SenmlRecord("soil_hum", unit=SenmlUnits.SENML_UNIT_RELATIVE_HUMIDITY, value=random.uniform(20.0,50.0),time=time.time())
+        #temp = SenmlRecord("temperature", unit=SenmlUnits.SENML_UNIT_DEGREES_CELSIUS, value=random.randint(0,40), time=time.time())
+        ah = SenmlRecord(name="air_hum", unit=SenmlUnits.SENML_UNIT_RELATIVE_HUMIDITY, value=float(sens.get_air_hum()), time=time.time())
+        sh = SenmlRecord(name="soil_hum", unit=SenmlUnits.SENML_UNIT_RELATIVE_HUMIDITY, value=float(sens.get_soil_hum()),time=time.time())
+        temp = SenmlRecord(name="temperature", unit=SenmlUnits.SENML_UNIT_DEGREES_CELSIUS, value=int(sens.get_temp()), time=time.time())
         tpack.add(ah)
         tpack.add(sh)
         tpack.add(temp)
@@ -103,7 +99,6 @@ def update_and_send():
         print(jstruct[0])
         print(jstruct[1])
         print(jstruct[2])
-        print(jstruct[3])
         
         mqtt_client.publish(tel_topic, jsonOut, True, 0)
         mqtt_client.publish(ah_topic, json.dumps(jstruct[0]), False, 0)
@@ -114,7 +109,13 @@ def update_and_send():
         
     
 #### MAIN
-wifi.radio.connect(ssid, password)
+try:
+    # Connect to the Wi-Fi network
+    wifi.radio.connect(ssid = getenv("TEL_SSID"), password = getenv("TEL_PASSWD"))
+except OSError as e:
+    print(f"Mobile Network not found, switching to secondary network")
+    wifi.radio.connect(ssid = getenv("WIFI_SSID"), password = getenv("WIFI_PASSWORD"))
+
 print("Connected to Wifi!")
 print("My IP addr:", wifi.radio.ipv4_address)
 
@@ -155,10 +156,11 @@ while True:
     try:
         update_and_send()
         mqtt_client.loop(float(settings.get_refresh()))
-        if(sens.get_soil_hum() < settings.get_soil_hum()):
+        if(sens.get_soil_hum() < settings.get_soil_hum_trigger()):
             sens.activate_led()
             time.sleep(settings.get_water_timer())
             sens.deactivate_led()
+            
     except (ValueError, RuntimeError) as e:
         print("Failed to get data, retrying\n", e)
         wifi.reset()
