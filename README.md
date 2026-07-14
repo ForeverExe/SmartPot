@@ -1,5 +1,4 @@
-# Smart Pot: it's not really a pot, but it's smart
-
+# Smart Pot
 <img height="400" src="Assets/20260626_184745.jpg" width="300"/>
 <img height="400" src="Assets/20260626_184757.jpg" width="300"/>
 <br>
@@ -74,6 +73,12 @@ If debugging or more details are needed, the device prints in Thonny's stdout.
 The Device reads and prepares a Json+SenMLPack containing every telemetry available and publishes it to the `t` topic.
 It also prepares and publishes via Json+SenMLRecord the single telemetry values so they could be obtained singularily (not used in the app for simplicity.)
 
+##### Code Flow:
+- Initializes the various sensors and settings object and tries to connect to an available 2.4GHz WiFi connection.
+- Publishes its information at the `ì` topic with the CPU's UID as its "root topic".
+- Starts reading and publishing the telemetry every loop
+- Updates its settings if new ones are uploaded in the broker.
+
 ---
 
 ### The Java Application
@@ -100,6 +105,11 @@ device's uuid. Also contains the settings and telemetry objects, so everything i
   
 
 - **DeviceSim** is a partial device simulator that only sends information data
+
+##### Code Flow
+- At startup, Discovery is performed and adds to its memory each device it can find by using their `#/i` topic.
+- It gets their telemetry and their settings from the broker to update itself.
+- Now it waits for a user command, meanwhile it still gets their telemetry updated asynchronously.
 ---
 
 # The MQTT Structure
