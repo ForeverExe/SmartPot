@@ -15,9 +15,9 @@
 * [Gallery](#gallery)
 <!-- TOC -->
 
-The Smart Pot is a project done for @piconem's Intelligent Internet of Things class at Universitá di Modena e
+The Smart Pot is a project done for @piconem 's Intelligent Internet of Things class at Universitá di Modena e
 Reggio Emilia (UniMoRe) - Sede di Mantova.  
-The device is a support for any plant that wants to be monitored, you just need to place the vase
+The device is a support for any plant that wants to be monitored, you just need to place the vase (or dirt directly)
 inside it and to position both the sensors and actuators.
 
 At its actual state, it can track and send via MQTT the plant's telemetry, its information for discovery and update its
@@ -104,7 +104,7 @@ device's uuid. Also contains the settings and telemetry objects, so everything i
 - **SmartPotServer**: The name of the app which uses the aformentioned objects, it connects to the broker, creates the devices' list, prepares and responds to user interaction thanks to the TUI.
   
 
-- **DeviceSim** is a partial device simulator that only sends information data
+- **DeviceSim** is a partial device simulator that only sends information data, *not intended for actual use*.
 
 ##### Code Flow
 - At startup, Discovery is performed and adds to its memory each device it can find by using their `#/i` topic.
@@ -146,7 +146,7 @@ root
 # Known Issues
 
 - Messages used for discovery (device info) and settings should be sent with a QOS 2 for major certainty of correct message delivery, but *QOS 2 is not yet implemented in adafruit's publish method*.
-- The model has some tolerance issues in the area dedicated to slot the electronics. The areas are needed to be increased in size or lightly milled in order to fit.
+- The printed model has some tolerance issues in the area dedicated to slot the electronics. The areas are needed to be increased in size or lightly milled in order to fit.
 
 # Gallery
 
